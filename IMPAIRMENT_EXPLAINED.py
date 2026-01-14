@@ -4,6 +4,9 @@ IMPAIRMENT CALCULATION EXPLAINED
 
 This script provides a detailed walkthrough of how impairment is calculated
 in the backbook forecast model, with a step-by-step example.
+
+Updated: Now uses WO_DebtSold (forecast from rates) as Debt Sale WriteOffs
+with a fixed 78.5% DS Coverage Ratio.
 """
 
 print("""
@@ -33,117 +36,146 @@ KEY CONCEPTS
    - Negative = released provisions (income)
 
 4. DEBT SALE (when you sell bad loans to a third party)
-   - Debt_Sale_WriteOffs: GBV of loans sold
+   - WO_DebtSold (from rates) IS the Debt_Sale_WriteOffs
+   - DS_Coverage_Ratio = 78.5% FIXED for all cohorts/segments
+   - DS_Provision_For_Pool: Provision allocated to debt sale pool
    - Debt_Sale_Provision_Release: Provision freed up (was covering those loans)
    - Debt_Sale_Proceeds: Cash received from buyer
 
+5. CORE VALUES (after removing debt sale portion)
+   - Core_Provision: Remaining provision after DS provision removed
+   - Core_GBV: Remaining GBV after DS writeoffs removed
+   - Core_Coverage_Ratio: Coverage on the remaining "good" loans
+
 --------------------------------------------------------------------------------
-THE IMPAIRMENT FORMULAS
+THE IMPAIRMENT FORMULAS (UPDATED)
 --------------------------------------------------------------------------------
 
-STEP 1: Calculate Provision Balance
-    Provision_Balance = ClosingGBV × Coverage_Ratio
+STEP 1: Forecast WO_DebtSold from Rates
+    WO_DebtSold = OpeningGBV × WO_DebtSold_Rate
+    This IS the Debt Sale WriteOffs
 
-STEP 2: Calculate Provision Movement
+STEP 2: Calculate Debt Sale Provision for Pool
+    DS_Coverage_Ratio = 78.5% (FIXED)
+    DS_Provision_For_Pool = DS_Coverage_Ratio × WO_DebtSold
+    This is the provision that was covering the loans being sold
+
+STEP 3: Calculate Core Values (after debt sale)
+    Core_Provision = Prior_Provision - DS_Provision_For_Pool
+    Core_GBV = OpeningGBV - WO_DebtSold
+    Core_Coverage_Ratio = Core_Provision / Core_GBV
+
+STEP 4: Calculate ClosingGBV
+    ClosingGBV = OpeningGBV + InterestRevenue - Collections - WriteOffs
+    (WriteOffs include WO_DebtSold and WO_Other)
+
+STEP 5: Calculate New Provision Balance
+    Provision_Balance = ClosingGBV × Coverage_Ratio (from methodology)
+
+STEP 6: Calculate Provision Movement
     Provision_Movement = Provision_Balance[t] - Provision_Balance[t-1]
 
-STEP 3: If Debt Sale occurs this month:
-    Debt_Sale_Provision_Release = Debt_Sale_WriteOffs × Debt_Sale_Coverage_Ratio
-    Debt_Sale_Proceeds = Debt_Sale_WriteOffs × Debt_Sale_Proceeds_Rate
+STEP 7: Calculate Debt Sale components
+    Debt_Sale_Provision_Release = DS_Provision_For_Pool
+    Debt_Sale_Proceeds = Debt_Sale_Proceeds_Rate × WO_DebtSold
 
-STEP 4: Calculate Net Impairment components
+STEP 8: Calculate Net Impairment
     Non_DS_Provision_Movement = Provision_Movement + Debt_Sale_Provision_Release
     Gross_Impairment_ExcludingDS = Non_DS_Provision_Movement + WO_Other
-    Debt_Sale_Impact = Debt_Sale_WriteOffs + Debt_Sale_Provision_Release + Debt_Sale_Proceeds
-
-STEP 5: Total Net Impairment
+    Debt_Sale_Impact = WO_DebtSold + Debt_Sale_Provision_Release + Debt_Sale_Proceeds
     Net_Impairment = Gross_Impairment_ExcludingDS + Debt_Sale_Impact
 
-STEP 6: Closing NBV
+STEP 9: Closing NBV
     ClosingNBV = ClosingGBV - Net_Impairment
 
 ================================================================================
-END-TO-END EXAMPLE: Forecasting Month 1
+END-TO-END EXAMPLE: Forecasting with Debt Sale
 ================================================================================
 
-Starting Point (from last actual month - September 2025):
-    OpeningGBV = £98,748.52
-    Prior_Provision_Balance = £98,217.87
-    Coverage_Ratio (from methodology) = 12.5% (Manual setting)
+Starting Point (from last actual month):
+    OpeningGBV = £100,000
+    Prior_Provision_Balance = £12,000 (12% coverage)
+    WO_DebtSold_Rate = 2% (from rate methodology)
+    Coverage_Ratio = 12.5% (from methodology)
+    DS_Coverage_Ratio = 78.5% (FIXED)
+    DS_Proceeds_Rate = 90%
 
-STEP 1: Calculate ClosingGBV (using collection rates)
-    ClosingGBV = OpeningGBV + InterestRevenue - Collections - WriteOffs
-    ClosingGBV = £98,748.52 + £822.90 - £0 - £0 - £0 - £0
-    ClosingGBV = £99,571.42
+STEP 1: Calculate WO_DebtSold (which IS Debt Sale WriteOffs)
+    WO_DebtSold = £100,000 × 2% = £2,000
+    Debt_Sale_WriteOffs = £2,000
 
-STEP 2: Calculate New Provision Balance
-    Provision_Balance = ClosingGBV × Coverage_Ratio
-    Provision_Balance = £99,571.42 × 0.125
-    Provision_Balance = £12,446.43
+STEP 2: Calculate DS Provision for Pool
+    DS_Provision_For_Pool = 78.5% × £2,000 = £1,570
 
-STEP 3: Calculate Provision Movement
-    Provision_Movement = New Balance - Prior Balance
-    Provision_Movement = £12,446.43 - £98,217.87
-    Provision_Movement = -£85,771.44  (RELEASE - prior provision was much higher!)
+STEP 3: Calculate Core Values
+    Core_Provision = £12,000 - £1,570 = £10,430
+    Core_GBV = £100,000 - £2,000 = £98,000
+    Core_Coverage_Ratio = £10,430 / £98,000 = 10.64%
 
-STEP 4: No Debt Sale this month
-    Debt_Sale_WriteOffs = £0
-    Debt_Sale_Provision_Release = £0
-    Debt_Sale_Proceeds = £0
+STEP 4: Calculate ClosingGBV
+    Assume: InterestRevenue = £800, Collections = £3,000, WO_Other = £200
+    ClosingGBV = £100,000 + £800 - £3,000 - £2,000 - £200 = £95,600
 
-STEP 5: Calculate Net Impairment
-    Non_DS_Provision_Movement = -£85,771.44 + £0 = -£85,771.44
-    Gross_Impairment_ExcludingDS = -£85,771.44 + £0 = -£85,771.44
-    Debt_Sale_Impact = £0 + £0 + £0 = £0
-    Net_Impairment = -£85,771.44 + £0 = -£85,771.44
+STEP 5: Calculate New Provision Balance
+    Provision_Balance = £95,600 × 12.5% = £11,950
 
-STEP 6: Calculate Closing NBV
-    ClosingNBV = ClosingGBV - Net_Impairment
-    ClosingNBV = £99,571.42 - (-£85,771.44)
-    ClosingNBV = £185,342.87
+STEP 6: Calculate Provision Movement
+    Provision_Movement = £11,950 - £12,000 = -£50 (small release)
 
-NOTE: The large negative impairment (provision release) occurs because:
-- The actual coverage ratio in the data was ~99.5% (very high provisions)
-- The forecast methodology uses 12.5% coverage ratio
-- This difference causes a big provision release in month 1
+STEP 7: Calculate Debt Sale components
+    Debt_Sale_Provision_Release = £1,570
+    Debt_Sale_Proceeds = 90% × £2,000 = £1,800
 
-================================================================================
-DEBT SALE EXAMPLE
-================================================================================
+STEP 8: Calculate Net Impairment
+    Non_DS_Provision_Movement = -£50 + £1,570 = £1,520
+    Gross_Impairment_ExcludingDS = £1,520 + £200 = £1,720
+    Debt_Sale_Impact = £2,000 + £1,570 + £1,800 = £5,370
+    Net_Impairment = £1,720 + £5,370 = £7,090
 
-If a Debt Sale Schedule is provided with:
-    Debt_Sale_WriteOffs = £10,000
-    Debt_Sale_Coverage_Ratio = 85%
-    Debt_Sale_Proceeds_Rate = 90%
-
-Then:
-    Debt_Sale_Provision_Release = £10,000 × 0.85 = £8,500 (provision freed up)
-    Debt_Sale_Proceeds = £10,000 × 0.90 = £9,000 (cash received)
-
-    Debt_Sale_Impact = £10,000 + £8,500 + £9,000 = £27,500
-
-This represents:
-    - £10,000 of bad loans removed from GBV
-    - £8,500 of provisions released (no longer needed)
-    - £9,000 cash received from the buyer
+STEP 9: Calculate Closing NBV
+    ClosingNBV = £95,600 - £7,090 = £88,510
 
 ================================================================================
-WHAT THE DEBT_SALE_SCHEDULE FILE DOES
+SUMMARY OF KEY CHANGES
 ================================================================================
 
-The Debt_Sale_Schedule.csv allows you to specify PLANNED debt sales:
+1. WO_DebtSold (forecast from rates) IS the Debt Sale WriteOffs
+   - No separate Debt_Sale_Schedule file needed for debt sale amounts
+   - The WO_DebtSold_Rate in Rate_Methodology controls debt sale volume
 
-    ForecastMonth, Segment, Cohort, Debt_Sale_WriteOffs, Debt_Sale_Coverage_Ratio, Debt_Sale_Proceeds_Rate
-    6/30/2025, NRP-S, 202001, 5000.00, 0.85, 0.90
+2. DS Coverage Ratio = 78.5% FIXED
+   - Applied to all cohorts, segments, and forecast months
+   - Configurable in Config.DS_COVERAGE_RATIO
 
-This tells the model:
-- In June 2025, for NRP-S/202001 cohort
-- Sell £5,000 of bad loans
-- Release 85% of provisions on those loans
-- Receive 90% of face value as proceeds
+3. New Metrics Added:
+   - DS_Provision_For_Pool: DS_Coverage × WO_DebtSold
+   - Core_Provision: Prior provision minus DS provision for pool
+   - Core_GBV: Opening GBV minus debt sale writeoffs
+   - Core_Coverage_Ratio: Core provision / Core GBV
 
-If you DON'T provide this file, the model assumes NO debt sales occur
-during the forecast period.
+4. The Core values show what remains AFTER the debt sale:
+   - Core_Provision = provision covering remaining loans
+   - Core_GBV = GBV of remaining loans
+   - Core_Coverage_Ratio = how well covered the remaining loans are
+
+================================================================================
+CONFIGURING WO_DebtSold RATES
+================================================================================
+
+To control how much is forecast as debt sale writeoffs, update the
+Rate_Methodology.csv file with appropriate WO_DebtSold rate rules:
+
+Example: To forecast 2% per month as debt sales for all cohorts:
+    Segment,Cohort,MOB_Start,MOB_End,Metric,Approach,Param1,Param2
+    ALL,ALL,1,999,WO_DebtSold,Manual,0.02,
+
+Example: To use cohort average for debt sale rates:
+    Segment,Cohort,MOB_Start,MOB_End,Metric,Approach,Param1,Param2
+    ALL,ALL,1,999,WO_DebtSold,CohortAvg,6,
+
+Example: No debt sales (Zero approach):
+    Segment,Cohort,MOB_Start,MOB_End,Metric,Approach,Param1,Param2
+    ALL,ALL,1,999,WO_DebtSold,Zero,,
 
 ================================================================================
 """)

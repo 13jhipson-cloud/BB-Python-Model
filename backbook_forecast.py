@@ -42,6 +42,10 @@ class Config:
     LOOKBACK_PERIODS: int = 6  # Default lookback for CohortAvg
     MOB_THRESHOLD: int = 3  # Minimum MOB for rate calculation
 
+    # Debt Sale Coverage Ratio - fixed for all cohorts/segments
+    # This is the percentage of provisions covering debt sale pool
+    DS_COVERAGE_RATIO: float = 0.785  # 78.5%
+
     # Rate caps by metric
     RATE_CAPS: Dict[str, Tuple[float, float]] = {
         'Coll_Principal': (-0.15, 0.0),
@@ -1338,23 +1342,45 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         # Ensure non-negative
         closing_gbv = max(0.0, closing_gbv)
 
-        # Calculate impairment
+        # =======================================================================
+        # DEBT SALE AND IMPAIRMENT CALCULATION
+        # =======================================================================
+        # User's expected calculation:
+        # - WO_DebtSold (forecast from rates) IS the Debt Sale WriteOffs
+        # - DS Coverage Ratio = 78.5% fixed for all
+        # - DS provision for DS pool = DS coverage ratio × WO_DebtSold
+        # - Core provision = Prior provision - DS provision for DS pool
+        # - Core GBV = Prior closing GBV - DS WriteOffs (i.e., OpeningGBV - WO_DebtSold)
+        # - Core coverage ratio = Core provision / Core GBV
+        # =======================================================================
+
+        # Debt sale writeoffs = WO_DebtSold forecast from rates
+        debt_sale_wo = wo_debt_sold  # Use WO_DebtSold from rates as debt sale writeoffs
+        ds_coverage_ratio = Config.DS_COVERAGE_RATIO  # Fixed 78.5%
+        ds_proceeds_rate = imp_rates.get('Debt_Sale_Proceeds_Rate', 0.90)
+
+        # Calculate DS provision for DS pool
+        ds_provision_for_pool = ds_coverage_ratio * debt_sale_wo
+
+        # Calculate core values (after removing debt sale portion)
+        core_provision = prior_provision - ds_provision_for_pool
+        core_gbv = opening_gbv - debt_sale_wo  # Prior closing = current opening
+
+        # Calculate core coverage ratio (provision on remaining "good" loans)
+        core_coverage_ratio = safe_divide(core_provision, core_gbv, default=0.0)
+
+        # Calculate DS proceeds
+        ds_proceeds = ds_proceeds_rate * debt_sale_wo
+
+        # Total provision balance (based on methodology coverage ratio applied to closing GBV)
         total_coverage_ratio = imp_rates.get('Total_Coverage_Ratio', 0.12)
         total_provision_balance = closing_gbv * total_coverage_ratio
         total_provision_movement = total_provision_balance - prior_provision
 
-        # Debt sale calculations
-        debt_sale_wo = imp_rates.get('Debt_Sale_WriteOffs', 0.0)
-        if debt_sale_wo > 0:
-            ds_coverage_ratio = imp_rates.get('Debt_Sale_Coverage_Ratio', 0.85)
-            ds_proceeds_rate = imp_rates.get('Debt_Sale_Proceeds_Rate', 0.90)
-            ds_provision_release = ds_coverage_ratio * debt_sale_wo
-            ds_proceeds = ds_proceeds_rate * debt_sale_wo
-        else:
-            ds_coverage_ratio = 0.0
-            ds_provision_release = 0.0
-            ds_proceeds = 0.0
+        # Provision release from debt sale (provision that was covering sold loans)
+        ds_provision_release = ds_provision_for_pool
 
+        # Calculate net impairment components
         non_ds_provision_movement = total_provision_movement + ds_provision_release
         gross_impairment_excl_ds = non_ds_provision_movement + wo_other
         debt_sale_impact = debt_sale_wo + ds_provision_release + ds_proceeds
@@ -1408,10 +1434,20 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
             'Total_Provision_Balance': round(total_provision_balance, 2),
             'Prior_Provision_Balance': round(prior_provision, 2),
             'Total_Provision_Movement': round(total_provision_movement, 2),
+
+            # Debt Sale - using WO_DebtSold from rates as debt sale writeoffs
             'Debt_Sale_WriteOffs': round(debt_sale_wo, 2),
             'Debt_Sale_Coverage_Ratio': round(ds_coverage_ratio, 6),
+            'DS_Provision_For_Pool': round(ds_provision_for_pool, 2),
             'Debt_Sale_Provision_Release': round(ds_provision_release, 2),
             'Debt_Sale_Proceeds': round(ds_proceeds, 2),
+
+            # Core values (after removing debt sale portion)
+            'Core_Provision': round(core_provision, 2),
+            'Core_GBV': round(core_gbv, 2),
+            'Core_Coverage_Ratio': round(core_coverage_ratio, 6),
+
+            # Net impairment components
             'Non_DS_Provision_Movement': round(non_ds_provision_movement, 2),
             'Gross_Impairment_ExcludingDS': round(gross_impairment_excl_ds, 2),
             'Debt_Sale_Impact': round(debt_sale_impact, 2),
@@ -1584,10 +1620,16 @@ def generate_impairment_output(forecast: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     columns = [
-        'ForecastMonth', 'Segment', 'Cohort', 'MOB', 'ClosingGBV',
-        'Total_Coverage_Ratio', 'Total_Provision_Balance', 'Total_Provision_Movement',
-        'Debt_Sale_WriteOffs', 'Debt_Sale_Coverage_Ratio', 'Debt_Sale_Provision_Release',
-        'Debt_Sale_Proceeds', 'Non_DS_Provision_Movement', 'Gross_Impairment_ExcludingDS',
+        'ForecastMonth', 'Segment', 'Cohort', 'MOB', 'OpeningGBV', 'ClosingGBV',
+        'Total_Coverage_Ratio', 'Total_Provision_Balance', 'Prior_Provision_Balance',
+        'Total_Provision_Movement',
+        # Debt Sale metrics
+        'WO_DebtSold', 'Debt_Sale_WriteOffs', 'Debt_Sale_Coverage_Ratio',
+        'DS_Provision_For_Pool', 'Debt_Sale_Provision_Release', 'Debt_Sale_Proceeds',
+        # Core values (after debt sale)
+        'Core_Provision', 'Core_GBV', 'Core_Coverage_Ratio',
+        # Net impairment components
+        'Non_DS_Provision_Movement', 'Gross_Impairment_ExcludingDS',
         'Debt_Sale_Impact', 'Net_Impairment'
     ]
 
