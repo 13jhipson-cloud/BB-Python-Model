@@ -1279,7 +1279,7 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
 
             # Get coverage ratio from methodology
             meth = get_methodology(methodology, segment, cohort, mob, 'Total_Coverage_Ratio')
-            result = apply_approach(impairment_curves, segment, cohort, mob, 'Total_Coverage', meth)
+            result = apply_approach(impairment_curves, segment, cohort, mob, 'Total_Coverage_Ratio', meth)
 
             if result['Rate'] == 0.0 and 'ERROR' in result['ApproachTag']:
                 # Fallback to curves if available
