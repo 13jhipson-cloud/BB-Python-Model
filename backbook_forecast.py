@@ -1058,7 +1058,13 @@ def apply_approach(curves_df: pd.DataFrame, segment: str, cohort: str,
     """
     approach = methodology['Approach']
     param1 = methodology['Param1']
-    metric_col = f"{metric}_Rate"
+
+    # Determine the column name for this metric
+    # Some metrics (coverage ratios) don't follow the {metric}_Rate pattern
+    if metric in ['Total_Coverage_Ratio', 'Debt_Sale_Coverage_Ratio', 'Debt_Sale_Proceeds_Rate']:
+        metric_col = metric  # These are stored directly without _Rate suffix
+    else:
+        metric_col = f"{metric}_Rate"
 
     if approach == 'NoMatch_ERROR':
         return {'Rate': 0.0, 'ApproachTag': 'NoMatch_ERROR'}
