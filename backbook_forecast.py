@@ -815,29 +815,33 @@ def get_methodology(methodology_df: pd.DataFrame, segment: str, cohort: str,
 # =============================================================================
 
 def fn_cohort_avg(curves_df: pd.DataFrame, segment: str, cohort: str,
-                  mob: int, metric_col: str, lookback: int = 6) -> Optional[float]:
+                  mob: int, metric_col: str, lookback: int = 6,
+                  exclude_zeros: bool = False) -> Optional[float]:
     """
     Calculate average rate from last N MOBs (post-MOB 3).
+
+    IMPORTANT: Only uses historical data (MOB < forecast MOB), not extended curves.
 
     Args:
         curves_df: Curves DataFrame
         segment: Target segment
         cohort: Target cohort
-        mob: Target MOB
+        mob: Target MOB (the MOB being forecast)
         metric_col: Column name for metric rate
         lookback: Number of periods to look back
+        exclude_zeros: If True, only average non-zero rates (for debt sale metrics)
 
     Returns:
         float or None: Average rate
     """
     cohort_str = clean_cohort(cohort)
 
-    # Filter data
+    # Filter data - use MOB < mob to only include HISTORICAL data, not extended curves
     mask = (
         (curves_df['Segment'] == segment) &
         (curves_df['Cohort'] == cohort_str) &
         (curves_df['MOB'] > Config.MOB_THRESHOLD) &
-        (curves_df['MOB'] <= mob)
+        (curves_df['MOB'] < mob)  # CHANGED: < instead of <= to exclude forecast MOB
     )
 
     data = curves_df[mask].sort_values('MOB', ascending=False)
@@ -845,13 +849,22 @@ def fn_cohort_avg(curves_df: pd.DataFrame, segment: str, cohort: str,
     if len(data) < 2:
         return None
 
-    # Take last N rows
-    data = data.head(lookback)
-
     if metric_col not in data.columns:
         return None
 
-    rate = data[metric_col].mean()
+    # For debt sale metrics, only average non-zero rates
+    # (zeros just mean no debt sale occurred that month)
+    if exclude_zeros:
+        non_zero_data = data[data[metric_col] > 0]
+        if len(non_zero_data) == 0:
+            return None
+        # Take last N non-zero values
+        non_zero_data = non_zero_data.head(lookback)
+        rate = non_zero_data[metric_col].mean()
+    else:
+        # Take last N rows
+        data = data.head(lookback)
+        rate = data[metric_col].mean()
 
     if pd.isna(rate):
         return None
@@ -1047,9 +1060,14 @@ def apply_approach(curves_df: pd.DataFrame, segment: str, cohort: str,
         except (ValueError, TypeError):
             lookback = Config.LOOKBACK_PERIODS
 
-        rate = fn_cohort_avg(curves_df, segment, cohort, mob, metric_col, lookback)
+        # For debt sale metrics, only average non-zero rates
+        # (zeros just mean no debt sale occurred that month, not that the rate is 0)
+        exclude_zeros = metric in ['WO_DebtSold', 'Debt_Sale_Coverage_Ratio', 'Debt_Sale_Proceeds_Rate']
+
+        rate = fn_cohort_avg(curves_df, segment, cohort, mob, metric_col, lookback, exclude_zeros)
         if rate is not None:
-            return {'Rate': rate, 'ApproachTag': 'CohortAvg'}
+            tag = 'CohortAvg_NonZero' if exclude_zeros else 'CohortAvg'
+            return {'Rate': rate, 'ApproachTag': tag}
         else:
             return {'Rate': 0.0, 'ApproachTag': 'CohortAvg_NoData_ERROR'}
 
