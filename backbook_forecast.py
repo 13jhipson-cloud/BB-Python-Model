@@ -47,9 +47,8 @@ class Config:
     DS_COVERAGE_RATIO: float = 0.785  # 78.5%
     # Proceeds rate - pence received per £1 of GBV sold
     DS_PROCEEDS_RATE: float = 0.24  # 24p per £1
-    # Debt sale schedule - sales occur every DS_FREQUENCY MOBs starting at DS_FIRST_MOB
-    DS_FIRST_MOB: int = 4  # First debt sale at MOB 4
-    DS_FREQUENCY: int = 3  # Then every 3 MOBs (MOB 4, 7, 10, 13, 16...)
+    # Debt sale months - calendar months when debt sales occur (quarterly)
+    DS_MONTHS: List[int] = [3, 6, 9, 12]  # March, June, September, December
 
     # Rate caps by metric
     RATE_CAPS: Dict[str, Tuple[float, float]] = {
@@ -177,22 +176,21 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
     return result
 
 
-def is_debt_sale_month(mob: int) -> bool:
+def is_debt_sale_month(date: pd.Timestamp) -> bool:
     """
-    Check if a MOB is a debt sale month.
+    Check if a calendar month is a debt sale month.
 
-    Debt sales occur every DS_FREQUENCY MOBs starting at DS_FIRST_MOB.
-    E.g., with DS_FIRST_MOB=4 and DS_FREQUENCY=3: MOB 4, 7, 10, 13, 16...
+    Debt sales occur quarterly: March, June, September, December.
 
     Args:
-        mob: Month on Book
+        date: Calendar date (Timestamp)
 
     Returns:
-        bool: True if this MOB is a debt sale month
+        bool: True if this is a debt sale month
     """
-    if mob < Config.DS_FIRST_MOB:
+    if pd.isna(date):
         return False
-    return (mob - Config.DS_FIRST_MOB) % Config.DS_FREQUENCY == 0
+    return date.month in Config.DS_MONTHS
 
 
 # =============================================================================
@@ -1366,8 +1364,8 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         coll_interest = opening_gbv * rates.get('Coll_Interest_Rate', 0.0)
         interest_revenue = opening_gbv * rates.get('InterestRevenue_Rate', 0.0) / 12  # Monthly
 
-        # WO_DebtSold only occurs in debt sale months (MOB 4, 7, 10, 13, 16...)
-        if is_debt_sale_month(mob):
+        # WO_DebtSold only occurs in debt sale months (Mar, Jun, Sep, Dec)
+        if is_debt_sale_month(forecast_month):
             wo_debt_sold = opening_gbv * rates.get('WO_DebtSold_Rate', 0.0)
         else:
             wo_debt_sold = 0.0
@@ -1482,8 +1480,8 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
             'Prior_Provision_Balance': round(prior_provision, 2),
             'Total_Provision_Movement': round(total_provision_movement, 2),
 
-            # Debt Sale - only occurs in debt sale months (MOB 4, 7, 10, 13...)
-            'Is_Debt_Sale_Month': is_debt_sale_month(mob),
+            # Debt Sale - only occurs in debt sale months (Mar, Jun, Sep, Dec)
+            'Is_Debt_Sale_Month': is_debt_sale_month(forecast_month),
             'Debt_Sale_WriteOffs': round(debt_sale_wo, 2),
             'Debt_Sale_Coverage_Ratio': round(ds_coverage_ratio, 6),
             'Debt_Sale_Proceeds_Rate': round(ds_proceeds_rate, 6),
