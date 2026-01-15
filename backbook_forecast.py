@@ -60,7 +60,7 @@ class Config:
         'ContraSettlements_Principal': (-0.06, 0.0),
         'ContraSettlements_Interest': (-0.005, 0.0),
         'NewLoanAmount': (0.0, 1.0),
-        'Total_Coverage_Ratio': (0.05, 0.50),
+        'Total_Coverage_Ratio': (0.0, 2.50),  # Allow up to 250% coverage (some mature cohorts exceed 100%)
         'Debt_Sale_Coverage_Ratio': (0.50, 1.00),
         'Debt_Sale_Proceeds_Rate': (0.30, 1.00),
     }
