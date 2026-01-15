@@ -50,19 +50,20 @@ class Config:
     # Debt sale months - calendar months when debt sales occur (quarterly)
     DS_MONTHS: List[int] = [3, 6, 9, 12]  # March, June, September, December
 
-    # Rate caps by metric
+    # Rate caps by metric - wide ranges to accommodate data variance
+    # Caps are sanity checks, not business rules. CohortAvg/methodology drive values.
     RATE_CAPS: Dict[str, Tuple[float, float]] = {
-        'Coll_Principal': (-0.15, 0.0),
-        'Coll_Interest': (-0.10, 0.0),
-        'InterestRevenue': (0.10, 0.50),
-        'WO_DebtSold': (0.0, 0.12),
-        'WO_Other': (0.0, 0.01),
-        'ContraSettlements_Principal': (-0.06, 0.0),
-        'ContraSettlements_Interest': (-0.005, 0.0),
-        'NewLoanAmount': (0.0, 1.0),
-        'Total_Coverage_Ratio': (0.0, 2.50),  # Allow up to 250% coverage (some mature cohorts exceed 100%)
+        'Coll_Principal': (-0.50, 0.15),  # Usually negative (collections), some positive variance
+        'Coll_Interest': (-0.20, 0.05),   # Usually negative (collections), some positive variance
+        'InterestRevenue': (0.0, 0.50),   # Always positive
+        'WO_DebtSold': (0.0, 0.20),       # Always positive
+        'WO_Other': (0.0, 0.05),          # Always positive
+        'ContraSettlements_Principal': (-0.15, 0.01),  # Usually negative
+        'ContraSettlements_Interest': (-0.01, 0.01),   # Usually negative
+        'NewLoanAmount': (0.0, 1.0),      # Always positive
+        'Total_Coverage_Ratio': (0.0, 2.50),  # Allow up to 250% coverage
         'Debt_Sale_Coverage_Ratio': (0.50, 1.00),
-        'Debt_Sale_Proceeds_Rate': (0.30, 1.00),
+        'Debt_Sale_Proceeds_Rate': (0.10, 1.00),
     }
 
     # Valid segments
@@ -1161,7 +1162,11 @@ def apply_rate_cap(rate: float, metric: str, approach_tag: str) -> float:
 def build_rate_lookup(seed: pd.DataFrame, curves: pd.DataFrame,
                       methodology: pd.DataFrame, max_months: int) -> pd.DataFrame:
     """
-    Build rate lookup table for forecast.
+    Build rate lookup table for forecast with rolling CohortAvg.
+
+    For CohortAvg approach, forecasted rates from month N feed into month N+1's
+    calculation. This creates a rolling average where the lookback window includes
+    previously forecasted values.
 
     Args:
         seed: Seed curves
@@ -1181,14 +1186,20 @@ def build_rate_lookup(seed: pd.DataFrame, curves: pd.DataFrame,
         'ContraSettlements_Interest', 'NewLoanAmount'
     ]
 
+    # Create a working copy of curves that we'll update with forecasted rates
+    working_curves = curves.copy()
+
     lookups = []
 
-    for _, seed_row in seed.iterrows():
-        segment = seed_row['Segment']
-        cohort = seed_row['Cohort']
-        start_mob = seed_row['MOB']
+    # Process month-by-month to enable rolling CohortAvg
+    # This ensures month N+1's CohortAvg includes month N's forecasted rate
+    for month_offset in range(max_months):
+        month_forecasts = []
 
-        for month_offset in range(max_months):
+        for _, seed_row in seed.iterrows():
+            segment = seed_row['Segment']
+            cohort = seed_row['Cohort']
+            start_mob = seed_row['MOB']
             mob = start_mob + month_offset
 
             row = {
@@ -1197,12 +1208,16 @@ def build_rate_lookup(seed: pd.DataFrame, curves: pd.DataFrame,
                 'MOB': mob,
             }
 
+            forecast_rates = {}  # Store rates to add to working_curves
+
             for metric in rate_metrics:
+                metric_col = f'{metric}_Rate'
+
                 # Get methodology
                 meth = get_methodology(methodology, segment, cohort, mob, metric)
 
-                # Apply approach
-                result = apply_approach(curves, segment, cohort, mob, metric, meth)
+                # Apply approach using working_curves (includes previous forecasts)
+                result = apply_approach(working_curves, segment, cohort, mob, metric, meth)
 
                 # Apply cap
                 capped_rate = apply_rate_cap(result['Rate'], metric, result['ApproachTag'])
@@ -1210,7 +1225,24 @@ def build_rate_lookup(seed: pd.DataFrame, curves: pd.DataFrame,
                 row[f'{metric}_Rate'] = capped_rate
                 row[f'{metric}_Approach'] = result['ApproachTag']
 
+                # Store rate for adding to working_curves
+                forecast_rates[metric_col] = capped_rate
+
             lookups.append(row)
+
+            # Store this forecast to add to working_curves after processing all cohorts
+            month_forecasts.append({
+                'Segment': segment,
+                'Cohort': cohort,
+                'MOB': mob,
+                **forecast_rates
+            })
+
+        # After processing all cohorts for this month, add forecasted rates to working_curves
+        # This enables rolling CohortAvg for subsequent months
+        if month_forecasts:
+            forecast_df = pd.DataFrame(month_forecasts)
+            working_curves = pd.concat([working_curves, forecast_df], ignore_index=True)
 
     lookup_df = pd.DataFrame(lookups)
     logger.info(f"Built rate lookup with {len(lookup_df)} entries")
@@ -1222,7 +1254,11 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
                             methodology: pd.DataFrame, max_months: int,
                             debt_sale_schedule: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """
-    Build impairment lookup table for forecast.
+    Build impairment lookup table for forecast with rolling CohortAvg.
+
+    For CohortAvg approach on Total_Coverage_Ratio, forecasted ratios from month N
+    feed into month N+1's calculation. This creates a rolling average where the
+    lookback window includes previously forecasted values.
 
     Args:
         seed: Seed curves
@@ -1236,23 +1272,24 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
     """
     logger.info("Building impairment lookup...")
 
-    impairment_metrics = [
-        'Total_Coverage_Ratio', 'Debt_Sale_Coverage_Ratio', 'Debt_Sale_Proceeds_Rate'
-    ]
-
     # Get start forecast month from seed
     start_forecast_month = seed['ForecastMonth'].iloc[0]
 
+    # Create a working copy of impairment_curves that we'll update with forecasted ratios
+    working_curves = impairment_curves.copy()
+
     lookups = []
 
-    for _, seed_row in seed.iterrows():
-        segment = seed_row['Segment']
-        cohort = seed_row['Cohort']
-        start_mob = seed_row['MOB']
+    # Process month-by-month to enable rolling CohortAvg
+    for month_offset in range(max_months):
+        forecast_month = end_of_month(start_forecast_month + relativedelta(months=month_offset))
+        month_forecasts = []
 
-        for month_offset in range(max_months):
+        for _, seed_row in seed.iterrows():
+            segment = seed_row['Segment']
+            cohort = seed_row['Cohort']
+            start_mob = seed_row['MOB']
             mob = start_mob + month_offset
-            forecast_month = end_of_month(start_forecast_month + relativedelta(months=month_offset))
 
             row = {
                 'Segment': segment,
@@ -1277,18 +1314,18 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
 
             row['Debt_Sale_WriteOffs'] = debt_sale_wo
 
-            # Get coverage ratio from methodology
+            # Get coverage ratio from methodology using working_curves (includes previous forecasts)
             meth = get_methodology(methodology, segment, cohort, mob, 'Total_Coverage_Ratio')
-            result = apply_approach(impairment_curves, segment, cohort, mob, 'Total_Coverage_Ratio', meth)
+            result = apply_approach(working_curves, segment, cohort, mob, 'Total_Coverage_Ratio', meth)
 
             if result['Rate'] == 0.0 and 'ERROR' in result['ApproachTag']:
                 # Fallback to curves if available
                 mask = (
-                    (impairment_curves['Segment'] == segment) &
-                    (impairment_curves['Cohort'] == cohort)
+                    (working_curves['Segment'] == segment) &
+                    (working_curves['Cohort'] == cohort)
                 )
                 if mask.any():
-                    avg_coverage = impairment_curves[mask]['Total_Coverage_Ratio'].mean()
+                    avg_coverage = working_curves[mask]['Total_Coverage_Ratio'].mean()
                     if not pd.isna(avg_coverage):
                         result['Rate'] = avg_coverage
 
@@ -1303,6 +1340,20 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
                 row['Debt_Sale_Proceeds_Rate'] = 0.90
 
             lookups.append(row)
+
+            # Store this forecast to add to working_curves after processing all cohorts
+            month_forecasts.append({
+                'Segment': segment,
+                'Cohort': cohort,
+                'MOB': mob,
+                'Total_Coverage_Ratio': capped_rate
+            })
+
+        # After processing all cohorts for this month, add forecasted ratios to working_curves
+        # This enables rolling CohortAvg for subsequent months
+        if month_forecasts:
+            forecast_df = pd.DataFrame(month_forecasts)
+            working_curves = pd.concat([working_curves, forecast_df], ignore_index=True)
 
     lookup_df = pd.DataFrame(lookups)
     logger.info(f"Built impairment lookup with {len(lookup_df)} entries")
