@@ -192,6 +192,9 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
             'InterestRevenue_Rate': row.get('InterestRevenue_Rate_Annual', 0),
             'WO_DebtSold_Rate': row.get('WO_DebtSold_Rate', 0),
             'WO_Other_Rate': row.get('WO_Other_Rate', 0),
+            # Coverage ratios
+            'Provision_Balance': row.get('Provision_Balance', 0),
+            'Total_Coverage_Ratio': row.get('Coverage_Ratio', 0),
         })
 
     # Build forecast rows manually
@@ -215,6 +218,11 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
             'InterestRevenue_Rate': row.get('InterestRevenue_Rate', 0),
             'WO_DebtSold_Rate': row.get('WO_DebtSold_Rate', 0),
             'WO_Other_Rate': row.get('WO_Other_Rate', 0),
+            # Coverage ratios
+            'Provision_Balance': row.get('Total_Provision_Balance', 0),
+            'Total_Coverage_Ratio': row.get('Total_Coverage_Ratio', 0),
+            'Core_Coverage_Ratio': row.get('Core_Coverage_Ratio', 0),
+            'Debt_Sale_Coverage_Ratio': row.get('Debt_Sale_Coverage_Ratio', 0),
         })
 
     combined_df = pd.DataFrame(actuals_rows + forecast_rows)
