@@ -1,0 +1,376 @@
+Segment,Cohort,Metric,MOB_Start,MOB_End,Approach,Param1,Param2,Explanation
+ALL,ALL,Coll_Principal,0,999,CohortAvg,6,,Default: Rolling average of last 6 MOBs provides stable collection rate forecast
+ALL,ALL,Coll_Interest,0,999,CohortAvg,6,,Default: Rolling average of last 6 MOBs provides stable interest collection forecast
+ALL,ALL,InterestRevenue,0,999,CohortAvg,6,,Default: Rolling average of last 6 MOBs captures recent interest accrual patterns
+ALL,ALL,WO_Other,0,999,CohortAvg,6,,Default: Rolling average of last 6 MOBs for non-debt-sale writeoffs
+ALL,ALL,ContraSettlements_Principal,0,999,CohortAvg,6,,Default: Rolling average for settlements - typically small and stable
+ALL,ALL,ContraSettlements_Interest,0,999,CohortAvg,6,,Default: Rolling average for interest settlements - typically small and stable
+ALL,ALL,NewLoanAmount,0,999,Zero,,,No new loans in backbook forecast - backbook is existing portfolio only
+ALL,ALL,Debt_Sale_Coverage_Ratio,0,999,Manual,0.85,,Fixed assumption: 85% of provisions allocated to debt sale pool
+ALL,ALL,Debt_Sale_Proceeds_Rate,0,999,Manual,0.9,,Fixed assumption: 90p per GBV sold (buyer pricing assumption)
+NON PRIME,201912,WO_DebtSold,0,999,CohortAvg,6,,Mature cohort with full debt sale history - use rolling average
+NON PRIME,202001,WO_DebtSold,0,999,CohortAvg,6,,Clustered cohort with sufficient debt sale history - use rolling average
+NON PRIME,202101,WO_DebtSold,0,999,CohortAvg,6,,Clustered cohort with sufficient debt sale history - use rolling average
+NON PRIME,202201,WO_DebtSold,0,69,DonorCohort,201912,,Young cohort: borrow from 201912 until MOB 69 (201912's max MOB)
+NON PRIME,202201,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202301,WO_DebtSold,0,69,DonorCohort,201912,,Clustered cohort: borrow from 201912 for debt sale timing patterns
+NON PRIME,202301,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202404,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202404,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202405,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202405,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202406,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202406,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202407,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202407,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202408,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202408,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202409,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202409,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202410,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202410,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202411,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202411,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202412,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment characteristics
+NON PRIME,202412,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202501,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202501,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202502,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202502,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202503,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202503,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202504,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202504,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202505,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202505,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202506,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202506,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202507,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202507,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202508,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202508,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202509,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own debt sale history
+NON PRIME,202509,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202001,WO_DebtSold,0,999,CohortAvg,6,,Clustered cohort with debt sale history - use rolling average
+NRP-M,202101,WO_DebtSold,0,999,CohortAvg,6,,Clustered cohort with sufficient history - use rolling average
+NRP-M,202201,WO_DebtSold,0,56,DonorCohort,202101,,Young cohort: borrow from 202101 (oldest NRP-M) until MOB 56
+NRP-M,202201,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202301,WO_DebtSold,0,56,DonorCohort,202101,,Clustered cohort: borrow from 202101 for debt sale patterns
+NRP-M,202301,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202404,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202404,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202405,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202405,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202406,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202406,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202407,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202407,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202408,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202408,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202409,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202409,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202410,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202410,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202411,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202411,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202412,WO_DebtSold,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202412,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202501,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202501,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202502,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202502,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202503,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202503,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202504,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202504,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202505,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202505,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202506,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202506,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202507,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202507,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202508,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202508,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202509,WO_DebtSold,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202509,WO_DebtSold,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,201912,WO_DebtSold,0,999,CohortAvg,6,,Mature cohort with full debt sale history - use rolling average
+NRP-S,202001,WO_DebtSold,0,999,CohortAvg,6,,Clustered cohort with sufficient debt sale history - use rolling average
+NRP-S,202101,WO_DebtSold,0,999,CohortAvg,6,,Clustered cohort with sufficient debt sale history - use rolling average
+NRP-S,202201,WO_DebtSold,0,69,DonorCohort,201912,,Young cohort: borrow from 201912 (oldest NRP-S) until MOB 69
+NRP-S,202201,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202301,WO_DebtSold,0,69,DonorCohort,201912,,Clustered cohort: borrow from 201912 for debt sale patterns
+NRP-S,202301,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202404,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202404,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202405,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202405,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202406,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202406,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202407,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202407,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202408,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202408,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202409,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202409,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202410,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202410,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202411,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202411,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202412,WO_DebtSold,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202412,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202501,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202501,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202502,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202502,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202503,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202503,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202504,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202504,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202505,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202505,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202506,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202506,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202507,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202507,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202508,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202508,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202509,WO_DebtSold,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202509,WO_DebtSold,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202301,WO_DebtSold,0,999,CohortAvg,6,,Oldest NRP-L cohort - use rolling average of available history
+NRP-L,202404,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 (only NRP-L with history)
+NRP-L,202404,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202405,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202405,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202406,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202406,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202407,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202407,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202408,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202408,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202409,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202409,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202410,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202410,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202411,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202411,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202412,WO_DebtSold,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202412,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202501,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202501,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202502,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202502,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202503,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202503,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202504,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202504,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202505,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202505,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202506,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202506,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202507,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202507,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202508,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202508,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202509,WO_DebtSold,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202509,WO_DebtSold,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202101,WO_DebtSold,0,999,CohortAvg,6,,Oldest PRIME cohort - use rolling average of available history
+PRIME,202201,WO_DebtSold,0,54,DonorCohort,202101,,Young cohort: borrow from 202101 (oldest PRIME) until MOB 54
+PRIME,202201,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202405,WO_DebtSold,0,54,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+PRIME,202405,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202407,WO_DebtSold,0,54,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+PRIME,202407,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202409,WO_DebtSold,0,54,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+PRIME,202409,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202504,WO_DebtSold,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202504,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202507,WO_DebtSold,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202507,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202508,WO_DebtSold,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202508,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202509,WO_DebtSold,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202509,WO_DebtSold,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+ALL,ALL,WO_DebtSold,0,999,CohortAvg,6,,Default fallback: use rolling average for any undefined cohort x segment
+NON PRIME,201912,Total_Coverage_Ratio,0,999,CohortAvg,6,,Mature cohort with full provision history - rolling average captures stable coverage pattern
+NON PRIME,202001,Total_Coverage_Ratio,0,999,CohortAvg,6,,Clustered cohort with sufficient provision history - rolling average
+NON PRIME,202101,Total_Coverage_Ratio,0,999,CohortAvg,6,,Clustered cohort with sufficient provision history - rolling average
+NON PRIME,202201,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Young cohort: borrow coverage pattern from 201912 (mature NON PRIME benchmark)
+NON PRIME,202201,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202301,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Clustered cohort: borrow from 201912 for coverage ratio seasoning pattern
+NON PRIME,202301,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202404,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202404,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202405,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202405,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202406,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202406,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202407,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202407,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202408,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202408,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202409,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202409,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202410,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202410,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202411,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202411,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202412,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - similar segment risk profile
+NON PRIME,202412,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202501,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202501,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202502,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202502,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202503,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202503,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202504,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202504,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202505,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202505,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202506,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202506,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202507,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202507,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202508,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202508,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NON PRIME,202509,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own provision history
+NON PRIME,202509,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202001,Total_Coverage_Ratio,0,999,CohortAvg,6,,Clustered cohort with provision history - rolling average
+NRP-M,202101,Total_Coverage_Ratio,0,999,CohortAvg,6,,Clustered cohort with sufficient history - rolling average
+NRP-M,202201,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Young cohort: borrow from 202101 (oldest NRP-M) until MOB 56
+NRP-M,202201,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202301,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Clustered cohort: borrow from 202101 for coverage pattern
+NRP-M,202301,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202404,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202404,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202405,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202405,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202406,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202406,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202407,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202407,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202408,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202408,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202409,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202409,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202410,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202410,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202411,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202411,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202412,Total_Coverage_Ratio,0,56,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+NRP-M,202412,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202501,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202501,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202502,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202502,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202503,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202503,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202504,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202504,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202505,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202505,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202506,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202506,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202507,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202507,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202508,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202508,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-M,202509,Total_Coverage_Ratio,0,56,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+NRP-M,202509,Total_Coverage_Ratio,57,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,201912,Total_Coverage_Ratio,0,999,CohortAvg,6,,Mature cohort with full provision history - rolling average
+NRP-S,202001,Total_Coverage_Ratio,0,999,CohortAvg,6,,Clustered cohort with sufficient provision history - rolling average
+NRP-S,202101,Total_Coverage_Ratio,0,999,CohortAvg,6,,Clustered cohort with sufficient provision history - rolling average
+NRP-S,202201,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Young cohort: borrow from 201912 (oldest NRP-S) until MOB 69
+NRP-S,202201,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202301,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Clustered cohort: borrow from 201912 for coverage pattern
+NRP-S,202301,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202404,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202404,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202405,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202405,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202406,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202406,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202407,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202407,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202408,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202408,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202409,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202409,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202410,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202410,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202411,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202411,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202412,Total_Coverage_Ratio,0,69,DonorCohort,201912,,Recent cohort: borrow from 201912 - same segment
+NRP-S,202412,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202501,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202501,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202502,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202502,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202503,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202503,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202504,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202504,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202505,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202505,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202506,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202506,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202507,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202507,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202508,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202508,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-S,202509,Total_Coverage_Ratio,0,69,DonorCohort,201912,,New cohort: borrow from 201912 - insufficient own history
+NRP-S,202509,Total_Coverage_Ratio,70,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202301,Total_Coverage_Ratio,0,999,CohortAvg,6,,Oldest NRP-L cohort - use rolling average of available history
+NRP-L,202404,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 (only NRP-L with history)
+NRP-L,202404,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202405,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202405,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202406,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202406,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202407,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202407,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202408,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202408,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202409,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202409,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202410,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202410,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202411,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202411,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202412,Total_Coverage_Ratio,0,22,DonorCohort,202301,,Recent cohort: borrow from 202301 - same segment
+NRP-L,202412,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202501,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202501,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202502,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202502,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202503,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202503,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202504,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202504,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202505,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202505,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202506,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202506,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202507,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202507,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202508,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202508,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+NRP-L,202509,Total_Coverage_Ratio,0,22,DonorCohort,202301,,New cohort: borrow from 202301 - insufficient own history
+NRP-L,202509,Total_Coverage_Ratio,23,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202101,Total_Coverage_Ratio,0,999,CohortAvg,6,,Oldest PRIME cohort - use rolling average of available history
+PRIME,202201,Total_Coverage_Ratio,0,54,DonorCohort,202101,,Young cohort: borrow from 202101 (oldest PRIME) until MOB 54
+PRIME,202201,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202405,Total_Coverage_Ratio,0,54,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+PRIME,202405,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202407,Total_Coverage_Ratio,0,54,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+PRIME,202407,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202409,Total_Coverage_Ratio,0,54,DonorCohort,202101,,Recent cohort: borrow from 202101 - same segment
+PRIME,202409,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202504,Total_Coverage_Ratio,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202504,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202507,Total_Coverage_Ratio,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202507,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202508,Total_Coverage_Ratio,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202508,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+PRIME,202509,Total_Coverage_Ratio,0,54,DonorCohort,202101,,New cohort: borrow from 202101 - insufficient own history
+PRIME,202509,Total_Coverage_Ratio,55,999,CohortAvg,6,,Beyond donor MOB: use own rolling average
+ALL,ALL,Total_Coverage_Ratio,0,999,CohortAvg,6,,Default fallback: use rolling average for any undefined cohort x segment
