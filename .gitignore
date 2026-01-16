@@ -2,6 +2,7 @@
 output/
 test_output/
 Forecast_Transparency_Report.xlsx
+Fact_Raw_Transformed.csv
 
 # Python cache
 __pycache__/
