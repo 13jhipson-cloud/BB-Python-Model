@@ -203,6 +203,7 @@ def load_fact_raw(filepath: str) -> pd.DataFrame:
     Load and validate historical loan data.
 
     Supports both CSV (.csv) and Excel (.xlsx) file formats.
+    Automatically detects and transforms raw format (Fact_Raw_New) vs processed format.
     Automatically maps column names from common variations.
 
     Args:
@@ -228,6 +229,22 @@ def load_fact_raw(filepath: str) -> pd.DataFrame:
     else:
         df = pd.read_csv(filepath)
         logger.info(f"Loaded {len(df)} rows from CSV file")
+
+    # Detect if this is the raw format (Fact_Raw_New) that needs transformation
+    # Raw format has lowercase columns: 'cohort', 'calendarmonth', 'lob', 'loansize'
+    raw_format_indicators = ['cohort', 'calendarmonth', 'lob', 'loansize']
+    is_raw_format = all(col in df.columns for col in raw_format_indicators)
+
+    if is_raw_format:
+        logger.info("Detected raw data format (Fact_Raw_New) - applying transformations...")
+        try:
+            from data_transformer import transform_raw_data
+            df = transform_raw_data(df)
+            logger.info("Successfully transformed raw data to model format")
+        except ImportError:
+            raise ImportError(
+                "data_transformer module not found. Required for processing Fact_Raw_New format."
+            )
 
     # Column name mappings (source -> target)
     # Maps variations found in different data sources to standard names
