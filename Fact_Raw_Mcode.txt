@@ -1,0 +1,311 @@
+let
+    Source = Fact_Raw_Base,
+
+    // Rename raw columns
+    R =
+        Table.RenameColumns(
+            Source,
+            {
+                {"cohort", "Cohort"},
+                {"calendarmonth", "CalendarMonth"},
+                {"lob", "LOB"},
+                {"loansize", "LoanSize"},
+                {"openinggbv", "OpeningGBV"},
+                {"disbursalsexcltopup", "Disb_ExclTopups"},
+                {"disbursalstopup", "TopUp_IncrCash"},
+                {"loanamount", "NewLoanAmount"},
+                {"principalcollections", "Coll_Principal"},
+                {"interestcollections", "Coll_Interest"},
+                {"principalcontrasettlement", "ContraSettlements_Principal"},
+                {"nonprincipalcontrasettlement", "ContraSettlements_Interest"},
+                {"debtsalewriteoffs", "WO_DebtSold"},
+                {"otherwriteoffs", "WO_Other"},
+                {"closinggbv", "ClosingGBV_Reported"},
+                {"interestrevenue", "InterestRevenue"},
+                {"provisionatmonthend", "Provision"},
+                {"debtsaleproceeds", "DebtSaleProceeds"}
+            },
+            MissingField.Ignore
+        ),
+
+    // Calendar month to EoM
+    ToEoM = (v as any) as nullable date =>
+        try
+            Date.EndOfMonth(
+                #date(
+                    Number.From(Text.Start(Text.From(v), 4)),
+                    Number.From(Text.End(Text.From(v), 2)),
+                    1
+                )
+            )
+        otherwise
+            try
+                Date.EndOfMonth(Date.From(v))
+            otherwise
+                null,
+
+    WithDates =
+        Table.TransformColumns(
+            R,
+            {{"CalendarMonth", ToEoM, type date}}
+        ),
+
+    // Build CohortYM and CohortDate from raw Cohort
+    AddCT =
+        Table.AddColumn(
+            WithDates,
+            "CohortText",
+            each Text.Upper(Text.Trim(Text.From([Cohort]))),
+            type text
+        ),
+
+    AddYM =
+        Table.AddColumn(
+            AddCT,
+            "CohortYM",
+            each
+                let
+                    t = [CohortText]
+                in
+                    if t = "PRE-2020" or t = "PRE 2020" then
+                        -1
+                    else
+                        let
+                            n = try Number.From([Cohort]) otherwise null
+                        in
+                            if n <> null then
+                                n
+                            else
+                                let
+                                    d = try Date.From([Cohort]) otherwise null
+                                in
+                                    if d = null then
+                                        null
+                                    else
+                                        Date.Year(d) * 100 + Date.Month(d),
+            Int64.Type
+        ),
+
+    AddCDate =
+        Table.AddColumn(
+            AddYM,
+            "CohortDate",
+            each
+                if [CohortYM] = -1 then
+                    #date(2019, 12, 31)
+                else
+                    #date(
+                        Number.IntegerDivide([CohortYM], 100),
+                        Number.Mod([CohortYM], 100),
+                        1
+                    ),
+            type date
+        ),
+
+    // Surrogate date label for clusters
+    AddCohortEoM =
+        Table.AddColumn(
+            AddCDate,
+            "Cohort_EoM",
+            each
+                let
+                    ym = [CohortYM]
+                in
+                    if ym = -1 then
+                        #date(2019, 12, 31)
+                    else if ym >= 202001 and ym <= 202012 then
+                        #date(2020, 01, 31) // BACKBOOK 4
+                    else if ym >= 202101 and ym <= 202208 then
+                        #date(2021, 01, 31) // BACKBOOK 3
+                    else if ym >= 202209 and ym <= 202305 then
+                        #date(2022, 01, 31) // BACKBOOK 2
+                    else if ym >= 202306 and ym <= 202403 then
+                        #date(2023, 01, 31) // BACKBOOK 1
+                    else
+                        Date.EndOfMonth([CohortDate]),
+            type date
+        ),
+
+    // Replace Cohort with yyyyMM from Cohort_EoM
+    RemoveOldCohort =
+        if List.Contains(Table.ColumnNames(AddCohortEoM), "Cohort") then
+            Table.RemoveColumns(AddCohortEoM, {"Cohort"})
+        else
+            AddCohortEoM,
+
+    SetCohortFromEoM =
+        Table.AddColumn(
+            RemoveOldCohort,
+            "Cohort",
+            each Date.ToText([Cohort_EoM], "yyyyMM"),
+            type text
+        ),
+
+    // Clean keys
+    Clean = (x as any) =>
+        if x = null then
+            ""
+        else
+            Text.Upper(Text.Trim(Text.From(x))),
+
+    K1 =
+        Table.TransformColumns(
+            SetCohortFromEoM,
+            {
+                {"LOB", Clean, type text},
+                {"LoanSize", Clean, type text}
+            }
+        ),
+
+    K2 =
+        Table.TransformColumns(
+            K1,
+            {
+                {"LOB", each Text.Replace(_, "-", " "), type text}
+            }
+        ),
+
+    // NP size for Near Prime
+    AddNP =
+        Table.AddColumn(
+            K2,
+            "NP_Size",
+            each
+                if [LOB] <> "NEAR PRIME" or [LoanSize] = null then
+                    ""
+                else
+                    let
+                        // Keep only digits and "-" from the LoanSize text
+                        // "£0-5k" → "0-5", "£15-20k" → "15-20"
+                        raw    = Text.Select(Text.Trim(Text.From([LoanSize])), {"0".."9", "-"}),
+                        parts  = Text.Split(raw, "-"),
+                        lowTxt = if List.Count(parts) >= 1 then parts{0} else "",
+                        hiTxt  = if List.Count(parts) >= 2 then parts{1} else "",
+                        low    = try Number.From(lowTxt) otherwise null,
+                        high   = try Number.From(hiTxt) otherwise null
+                    in
+                        if low = null or high = null then
+                            ""
+                        else if low < 5 then
+                            "S"          // 0–5k → NRP-S
+                        else if low >= 5 and high <= 15 then
+                            "M"          // 5–10k and 10–15k → NRP-M
+                        else if low >= 15 then
+                            "L"          // 15–20k (and above if ever added) → NRP-L
+                        else
+                            "",
+            type text
+        ),
+
+    // Build Segment to match forecast_curves (NRP-S / NRP-M / NRP-L for Near Prime)
+    AddSeg =
+        Table.AddColumn(
+            AddNP,
+            "Segment",
+            each
+                if [LOB] = "NEAR PRIME" and [NP_Size] <> "" then
+                    "NRP-" & [NP_Size]   // NRP-S / NRP-M / NRP-L
+                else
+                    [LOB],               // for other LOBs, keep LOB as segment (adjust if needed)
+            type text
+        ),
+
+    // MOB from true CohortDate
+    AddMOB =
+        Table.AddColumn(
+            AddSeg,
+            "MOB",
+            each
+                Date.Year([CalendarMonth]) * 12 + Date.Month([CalendarMonth])
+                - (Date.Year([CohortDate]) * 12 + Date.Month([CohortDate])),
+            Int64.Type
+        ),
+
+    NonNeg =
+        Table.SelectRows(AddMOB, each [MOB] >= 0),
+
+    WithDim =
+        Table.AddColumn(
+            NonNeg,
+            "DaysInMonth",
+            each Date.DaysInMonth([CalendarMonth]),
+            Int64.Type
+        ),
+
+    // Group
+    Grouped =
+        Table.Group(
+            WithDim,
+            {"CalendarMonth", "Cohort", "Segment", "MOB"},
+            {
+                {"OpeningGBV", each List.Sum([OpeningGBV]), type number},
+                {"Disb_ExclTopups", each List.Sum([Disb_ExclTopups]), type number},
+                {"TopUp_IncrCash", each List.Sum([TopUp_IncrCash]), type number},
+                {"NewLoanAmount", each List.Sum([NewLoanAmount]), type number},
+                {"Coll_Principal", each List.Sum([Coll_Principal]), type number},
+                {"Coll_Interest", each List.Sum([Coll_Interest]), type number},
+                {"ContraSettlements_Principal", each List.Sum([ContraSettlements_Principal]), type number},
+                {"ContraSettlements_Interest", each List.Sum([ContraSettlements_Interest]), type number},
+                {"WO_DebtSold", each List.Sum([WO_DebtSold]), type number},
+                {"WO_Other", each List.Sum([WO_Other]), type number},
+                {"ClosingGBV_Reported", each List.Sum([ClosingGBV_Reported]), type number},
+                {"InterestRevenue", each List.Sum([InterestRevenue]), type number},
+                {"Provision", each List.Sum([Provision]), type number},
+                {"DebtSaleProceeds", each List.Sum([DebtSaleProceeds]), type number},
+                {"DaysInMonth", each List.Average([DaysInMonth]), type number}
+            }
+        ),
+
+    // Replace nulls with zeros
+    Z =
+        Table.ReplaceValue(
+            Grouped,
+            null,
+            0,
+            Replacer.ReplaceValue,
+            {
+                "OpeningGBV",
+                "Disb_ExclTopups",
+                "TopUp_IncrCash",
+                "NewLoanAmount",
+                "Coll_Principal",
+                "Coll_Interest",
+                "ContraSettlements_Principal",
+                "ContraSettlements_Interest",
+                "WO_DebtSold",
+                "WO_Other",
+                "ClosingGBV_Reported",
+                "InterestRevenue",
+                "Provision",
+                "DebtSaleProceeds"
+            }
+        ),
+
+    // NEW: Closing GBV with NO NewLoanAmount and NO ContraSettlements
+    // ClosingGBV = OpeningGBV - Collections - Write-offs + Interest
+    AddClosing =
+        Table.AddColumn(
+            Z,
+            "ClosingGBV",
+            each
+                [OpeningGBV]
+                + [Coll_Principal]
+                + [Coll_Interest]
+                - [WO_DebtSold]
+                - [WO_Other]
+                + [InterestRevenue],
+            type number
+        ),
+
+    // Variance vs reported
+    AddVar =
+        Table.AddColumn(
+            AddClosing,
+            "GBV_Variance",
+            each [ClosingGBV] - [ClosingGBV_Reported],
+            type number
+        ),
+    #"Filtered Rows" = Table.SelectRows(AddVar, each true)
+
+in
+    #"Filtered Rows"
