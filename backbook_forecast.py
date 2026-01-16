@@ -195,6 +195,217 @@ def is_debt_sale_month(date: pd.Timestamp) -> bool:
 
 
 # =============================================================================
+# SECTION 2B: RAW DATA TRANSFORMER
+# =============================================================================
+# Transforms raw Fact_Raw_New.xlsx format into model-ready format
+# Replicates Power Query M code transformations
+
+import re
+from calendar import monthrange
+from datetime import date as dt_date
+
+# Column renaming map (raw → model format)
+RAW_COLUMN_RENAME_MAP = {
+    'cohort': 'Cohort_Raw',
+    'calendarmonth': 'CalendarMonth_Raw',
+    'lob': 'LOB',
+    'loansize': 'LoanSize',
+    'openinggbv': 'OpeningGBV',
+    'disbursalsexcltopup': 'Disb_ExclTopups',
+    'disbursalstopup': 'TopUp_IncrCash',
+    'loanamount': 'NewLoanAmount',
+    'principalcollections': 'Coll_Principal',
+    'interestcollections': 'Coll_Interest',
+    'principalcontrasettlement': 'ContraSettlements_Principal',
+    'nonprincipalcontrasettlement': 'ContraSettlements_Interest',
+    'debtsalewriteoffs': 'WO_DebtSold',
+    'otherwriteoffs': 'WO_Other',
+    'closinggbv': 'ClosingGBV_Reported',
+    'interestrevenue': 'InterestRevenue',
+    'provisionatmonthend': 'Provision_Balance',
+    'debtsaleproceeds': 'Debt_Sale_Proceeds',
+}
+
+# Numeric columns for aggregation
+RAW_NUMERIC_COLUMNS = [
+    'OpeningGBV', 'Disb_ExclTopups', 'TopUp_IncrCash', 'NewLoanAmount',
+    'Coll_Principal', 'Coll_Interest', 'ContraSettlements_Principal',
+    'ContraSettlements_Interest', 'WO_DebtSold', 'WO_Other',
+    'ClosingGBV_Reported', 'InterestRevenue', 'Provision_Balance', 'Debt_Sale_Proceeds',
+]
+
+
+def yyyymm_to_eom(yyyymm: int) -> dt_date:
+    """Convert YYYYMM integer to end-of-month date."""
+    year = yyyymm // 100
+    month = yyyymm % 100
+    _, last_day = monthrange(year, month)
+    return dt_date(year, month, last_day)
+
+
+def parse_cohort_ym(cohort_val) -> int:
+    """Parse cohort value to YYYYMM integer. Returns -1 for PRE-2020."""
+    if pd.isna(cohort_val):
+        return None
+    cohort_str = str(cohort_val).strip().upper()
+    if 'PRE' in cohort_str and '2020' in cohort_str:
+        return -1
+    try:
+        return int(float(cohort_val))
+    except (ValueError, TypeError):
+        pass
+    try:
+        dt = pd.to_datetime(cohort_val)
+        return dt.year * 100 + dt.month
+    except Exception:
+        return None
+
+
+def get_cohort_cluster(cohort_ym: int) -> int:
+    """
+    Map cohort YYYYMM to clustered cohort based on Backbook groupings.
+    - PRE-2020 (-1) → 201912
+    - 202001-202012 → 202001 (Backbook 4)
+    - 202101-202208 → 202101 (Backbook 3)
+    - 202209-202305 → 202201 (Backbook 2)
+    - 202306-202403 → 202301 (Backbook 1)
+    - Others → keep original (monthly cohorts from 202404+)
+    """
+    if cohort_ym is None:
+        return None
+    if cohort_ym == -1:
+        return 201912
+    if 202001 <= cohort_ym <= 202012:
+        return 202001
+    if 202101 <= cohort_ym <= 202208:
+        return 202101
+    if 202209 <= cohort_ym <= 202305:
+        return 202201
+    if 202306 <= cohort_ym <= 202403:
+        return 202301
+    return cohort_ym
+
+
+def parse_loan_size_bucket(loan_size: str) -> str:
+    """Parse loan size string to S/M/L bucket."""
+    if pd.isna(loan_size):
+        return ''
+    raw = re.sub(r'[^0-9\-]', '', str(loan_size))
+    parts = raw.split('-')
+    if len(parts) < 2:
+        return ''
+    try:
+        low = int(parts[0])
+        high = int(parts[1])
+    except (ValueError, IndexError):
+        return ''
+    if low < 5:
+        return 'S'
+    elif low >= 5 and high <= 15:
+        return 'M'
+    elif low >= 15:
+        return 'L'
+    return ''
+
+
+def build_segment_from_lob(lob: str, loan_size: str) -> str:
+    """Build segment from LOB and LoanSize."""
+    if pd.isna(lob):
+        return ''
+    lob_clean = str(lob).strip().upper().replace('-', ' ')
+    if lob_clean == 'NEAR PRIME':
+        size_bucket = parse_loan_size_bucket(loan_size)
+        if size_bucket:
+            return f'NRP-{size_bucket}'
+        return 'NEAR PRIME'
+    return lob_clean
+
+
+def calculate_mob_from_dates(calendar_month_raw: int, cohort_date: dt_date) -> int:
+    """Calculate Months on Book from cohort date to calendar month."""
+    cal_year = calendar_month_raw // 100
+    cal_month = calendar_month_raw % 100
+    return (cal_year * 12 + cal_month) - (cohort_date.year * 12 + cohort_date.month)
+
+
+def transform_raw_data(df_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    Transform raw Fact_Raw_New data into model-ready format.
+    Replicates Power Query M code transformations.
+    """
+    logger.info(f"Starting transformation of {len(df_raw)} raw rows...")
+
+    # Step 1: Rename columns
+    df = df_raw.rename(columns=RAW_COLUMN_RENAME_MAP).copy()
+
+    # Step 2: Parse cohort YYYYMM
+    df['CohortYM'] = df['Cohort_Raw'].apply(parse_cohort_ym)
+
+    # Step 3: Create CohortDate (original, not clustered)
+    def cohort_ym_to_date(ym):
+        if ym is None:
+            return None
+        if ym == -1:
+            return dt_date(2019, 12, 31)
+        return dt_date(ym // 100, ym % 100, 1)
+
+    df['CohortDate'] = df['CohortYM'].apply(cohort_ym_to_date)
+
+    # Step 4: Apply cohort clustering
+    df['CohortCluster'] = df['CohortYM'].apply(get_cohort_cluster)
+    df['Cohort'] = df['CohortCluster'].astype(str)
+    logger.info("Applied cohort clustering (Backbook 1-4)")
+
+    # Step 5: Build Segment from LOB + LoanSize
+    df['Segment'] = df.apply(
+        lambda row: build_segment_from_lob(row.get('LOB'), row.get('LoanSize')), axis=1
+    )
+
+    # Step 6: Calculate MOB from original CohortDate
+    df['MOB'] = df.apply(
+        lambda row: calculate_mob_from_dates(row['CalendarMonth_Raw'], row['CohortDate'])
+        if row['CohortDate'] is not None else None, axis=1
+    )
+
+    # Filter out negative MOB
+    df = df[df['MOB'] >= 0].copy()
+    logger.info(f"Calculated MOB, {len(df)} rows with MOB >= 0")
+
+    # Step 7: Convert CalendarMonth to end-of-month date
+    df['CalendarMonth'] = df['CalendarMonth_Raw'].apply(
+        lambda x: pd.Timestamp(yyyymm_to_eom(x))
+    )
+
+    # Step 8: Add DaysInMonth
+    df['DaysInMonth'] = df['CalendarMonth'].dt.days_in_month
+
+    # Step 9: Fill missing numeric values with 0
+    for col in RAW_NUMERIC_COLUMNS:
+        if col in df.columns:
+            df[col] = df[col].fillna(0)
+
+    # Step 10: Group by CalendarMonth, Cohort, Segment, MOB
+    group_cols = ['CalendarMonth', 'Cohort', 'Segment', 'MOB']
+    agg_dict = {col: 'sum' for col in RAW_NUMERIC_COLUMNS if col in df.columns}
+    agg_dict['DaysInMonth'] = 'mean'
+
+    df_grouped = df.groupby(group_cols, as_index=False).agg(agg_dict)
+    df_grouped['DaysInMonth'] = df_grouped['DaysInMonth'].round().astype(int)
+
+    logger.info(f"Grouped to {len(df_grouped)} rows by Cohort × Segment × CalendarMonth × MOB")
+
+    # Sort and return
+    df_grouped = df_grouped.sort_values(
+        ['Segment', 'Cohort', 'CalendarMonth', 'MOB']
+    ).reset_index(drop=True)
+
+    logger.info(f"Unique Segments: {df_grouped['Segment'].unique().tolist()}")
+    logger.info(f"Unique Cohorts: {sorted(df_grouped['Cohort'].unique().tolist())}")
+
+    return df_grouped
+
+
+# =============================================================================
 # SECTION 3: DATA LOADING FUNCTIONS
 # =============================================================================
 
@@ -237,14 +448,8 @@ def load_fact_raw(filepath: str) -> pd.DataFrame:
 
     if is_raw_format:
         logger.info("Detected raw data format (Fact_Raw_New) - applying transformations...")
-        try:
-            from data_transformer import transform_raw_data
-            df = transform_raw_data(df)
-            logger.info("Successfully transformed raw data to model format")
-        except ImportError:
-            raise ImportError(
-                "data_transformer module not found. Required for processing Fact_Raw_New format."
-            )
+        df = transform_raw_data(df)
+        logger.info("Successfully transformed raw data to model format")
 
     # Column name mappings (source -> target)
     # Maps variations found in different data sources to standard names
