@@ -1,7 +1,7 @@
 # Generated output files
 output/
 test_output/
-Forecast_Transparency_Report.xlsx
+Forecast_Transparency_Report*.xlsx
 Fact_Raw_Transformed.csv
 
 # Python cache
