@@ -80,9 +80,13 @@ class Config:
 
     # Valid rate calculation approaches
     VALID_APPROACHES: List[str] = [
-        'CohortAvg', 'CohortTrend', 'DonorCohort',
+        'CohortAvg', 'CohortTrend', 'DonorCohort', 'ScaledDonor',
         'SegMedian', 'Manual', 'Zero'
     ]
+
+    # Seasonality configuration
+    ENABLE_SEASONALITY: bool = True  # Enable seasonal adjustment for coverage ratios
+    SEASONALITY_METRIC: str = 'Total_Coverage_Ratio'  # Metric to apply seasonality to
 
 
 # =============================================================================
@@ -403,6 +407,210 @@ def transform_raw_data(df_raw: pd.DataFrame) -> pd.DataFrame:
     logger.info(f"Unique Cohorts: {sorted(df_grouped['Cohort'].unique().tolist())}")
 
     return df_grouped
+
+
+# =============================================================================
+# SECTION 2C: SEASONALITY FUNCTIONS
+# =============================================================================
+# Functions to calculate, apply, and remove seasonal adjustments from coverage ratios
+# This allows us to analyze underlying trends without monthly noise
+
+# Global storage for seasonal factors (calculated once, used throughout)
+_seasonal_factors: Dict[str, Dict[int, float]] = {}
+
+
+def calculate_seasonal_factors(fact_raw: pd.DataFrame, metric: str = 'Total_Coverage_Ratio') -> Dict[str, Dict[int, float]]:
+    """
+    Calculate seasonal adjustment factors from historical data.
+
+    For each segment, calculates the average coverage ratio by calendar month,
+    then computes factors relative to the segment's overall average.
+
+    Factor > 1.0 means that month typically has higher CR than average
+    Factor < 1.0 means that month typically has lower CR than average
+
+    Args:
+        fact_raw: Historical loan data with CalendarMonth and coverage ratio
+        metric: The metric to calculate seasonality for (default: Total_Coverage_Ratio)
+
+    Returns:
+        Dict[str, Dict[int, float]]: Nested dict of {Segment: {month: factor}}
+    """
+    global _seasonal_factors
+    logger.info("Calculating seasonal factors for coverage ratios...")
+
+    # First, calculate coverage ratios from the raw data if needed
+    # Group by CalendarMonth, Segment to get weighted coverage ratio
+    monthly_cr = fact_raw.groupby(['CalendarMonth', 'Segment']).agg({
+        'Provision_Balance': 'sum',
+        'ClosingGBV_Reported': 'sum'
+    }).reset_index()
+
+    monthly_cr['Coverage_Ratio'] = monthly_cr.apply(
+        lambda r: safe_divide(r['Provision_Balance'], r['ClosingGBV_Reported']), axis=1
+    )
+
+    # Extract calendar month number
+    monthly_cr['Month'] = monthly_cr['CalendarMonth'].dt.month
+
+    # Calculate factors by segment
+    seasonal_factors = {}
+
+    for segment in monthly_cr['Segment'].unique():
+        seg_data = monthly_cr[monthly_cr['Segment'] == segment].copy()
+
+        # Calculate overall segment average CR
+        seg_avg = seg_data['Coverage_Ratio'].mean()
+
+        if seg_avg == 0 or pd.isna(seg_avg):
+            # If segment has no meaningful data, use neutral factors
+            seasonal_factors[segment] = {m: 1.0 for m in range(1, 13)}
+            continue
+
+        # Calculate average CR by month for this segment
+        month_avg = seg_data.groupby('Month')['Coverage_Ratio'].mean()
+
+        # Calculate factors: month_avg / segment_avg
+        factors = {}
+        for month in range(1, 13):
+            if month in month_avg.index and not pd.isna(month_avg[month]):
+                factors[month] = month_avg[month] / seg_avg
+            else:
+                factors[month] = 1.0  # Neutral if no data
+
+        seasonal_factors[segment] = factors
+
+    # Also calculate an "ALL" segment factor for fallback
+    overall_avg = monthly_cr['Coverage_Ratio'].mean()
+    if overall_avg > 0 and not pd.isna(overall_avg):
+        month_avg_all = monthly_cr.groupby('Month')['Coverage_Ratio'].mean()
+        all_factors = {}
+        for month in range(1, 13):
+            if month in month_avg_all.index and not pd.isna(month_avg_all[month]):
+                all_factors[month] = month_avg_all[month] / overall_avg
+            else:
+                all_factors[month] = 1.0
+        seasonal_factors['ALL'] = all_factors
+    else:
+        seasonal_factors['ALL'] = {m: 1.0 for m in range(1, 13)}
+
+    # Log the calculated factors
+    logger.info("Seasonal factors calculated:")
+    for seg in ['NON PRIME', 'NRP-S', 'NRP-M', 'NRP-L', 'PRIME', 'ALL']:
+        if seg in seasonal_factors:
+            factors_str = ", ".join([f"{m}:{v:.3f}" for m, v in sorted(seasonal_factors[seg].items())])
+            logger.info(f"  {seg}: {factors_str}")
+
+    # Store globally for later use
+    _seasonal_factors = seasonal_factors
+
+    return seasonal_factors
+
+
+def get_seasonal_factor(segment: str, month: int) -> float:
+    """
+    Get the seasonal factor for a segment and calendar month.
+
+    Args:
+        segment: Segment name
+        month: Calendar month (1-12)
+
+    Returns:
+        float: Seasonal factor (1.0 = neutral)
+    """
+    global _seasonal_factors
+
+    if not _seasonal_factors:
+        return 1.0
+
+    if segment in _seasonal_factors:
+        return _seasonal_factors[segment].get(month, 1.0)
+    elif 'ALL' in _seasonal_factors:
+        return _seasonal_factors['ALL'].get(month, 1.0)
+    else:
+        return 1.0
+
+
+def deseasonalize_coverage_ratio(cr: float, segment: str, month: int) -> float:
+    """
+    Remove seasonal effect from a coverage ratio.
+
+    De-seasonalized CR = Actual CR / Seasonal Factor
+
+    Args:
+        cr: Actual coverage ratio
+        segment: Segment name
+        month: Calendar month (1-12)
+
+    Returns:
+        float: De-seasonalized coverage ratio
+    """
+    factor = get_seasonal_factor(segment, month)
+    if factor == 0 or pd.isna(factor):
+        return cr
+    return cr / factor
+
+
+def reseasonalize_coverage_ratio(cr: float, segment: str, month: int) -> float:
+    """
+    Re-apply seasonal effect to a coverage ratio forecast.
+
+    Seasonalized CR = Base CR × Seasonal Factor
+
+    Args:
+        cr: Base (de-seasonalized) coverage ratio forecast
+        segment: Segment name
+        month: Calendar month (1-12)
+
+    Returns:
+        float: Seasonally adjusted coverage ratio
+    """
+    factor = get_seasonal_factor(segment, month)
+    return cr * factor
+
+
+def add_deseasonalized_cr_to_curves(curves: pd.DataFrame, fact_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add de-seasonalized coverage ratio column to curves DataFrame.
+
+    This creates a 'Total_Coverage_Ratio_Deseasonalized' column that can be
+    used for trend analysis and forecasting without seasonal noise.
+
+    Args:
+        curves: Curves DataFrame with Segment, Cohort, MOB, Total_Coverage_Ratio
+        fact_raw: Raw data used to get CalendarMonth for each observation
+
+    Returns:
+        pd.DataFrame: Curves with added de-seasonalized column
+    """
+    logger.info("Adding de-seasonalized coverage ratios to curves...")
+
+    # Get the calendar month for each Segment × Cohort × MOB combination
+    # from the fact_raw data
+    cal_month_lookup = fact_raw.groupby(['Segment', 'Cohort', 'MOB'])['CalendarMonth'].first().reset_index()
+
+    # Merge to get calendar month
+    curves_with_month = curves.merge(
+        cal_month_lookup,
+        on=['Segment', 'Cohort', 'MOB'],
+        how='left'
+    )
+
+    # Calculate de-seasonalized CR
+    def calc_deseas_cr(row):
+        if pd.isna(row.get('CalendarMonth')) or pd.isna(row.get('Total_Coverage_Ratio')):
+            return row.get('Total_Coverage_Ratio', 0)
+        month = row['CalendarMonth'].month if hasattr(row['CalendarMonth'], 'month') else 1
+        return deseasonalize_coverage_ratio(row['Total_Coverage_Ratio'], row['Segment'], month)
+
+    curves_with_month['Total_Coverage_Ratio_Deseasonalized'] = curves_with_month.apply(calc_deseas_cr, axis=1)
+
+    # Drop the CalendarMonth column if it wasn't there originally
+    if 'CalendarMonth' not in curves.columns:
+        curves_with_month = curves_with_month.drop(columns=['CalendarMonth'])
+
+    logger.info("De-seasonalized coverage ratios added successfully")
+    return curves_with_month
 
 
 # =============================================================================
@@ -1223,6 +1431,122 @@ def fn_donor_cohort(curves_df: pd.DataFrame, segment: str, donor_cohort: str,
     return float(rate)
 
 
+def fn_scaled_donor(curves_df: pd.DataFrame, segment: str, cohort: str,
+                    donor_cohort: str, mob: int, metric_col: str,
+                    reference_mob: int = 6) -> Tuple[Optional[float], Optional[float]]:
+    """
+    Copy curve SHAPE from donor cohort, scaled to target cohort's level.
+
+    Unlike DonorCohort which copies exact rates, ScaledDonor:
+    1. Calculates a scale factor from the target vs donor at a reference MOB
+    2. Applies that scale factor to the donor's rate at the forecast MOB
+
+    This preserves the shape/trajectory of the donor curve while adjusting
+    for the different level of the target cohort.
+
+    Scale Factor = Target CR at reference MOB / Donor CR at reference MOB
+    Forecast = Donor CR at forecast MOB × Scale Factor
+
+    Args:
+        curves_df: Curves DataFrame
+        segment: Target segment
+        cohort: Target cohort YYYYMM
+        donor_cohort: Donor cohort YYYYMM
+        mob: Target MOB to forecast
+        metric_col: Column name for metric rate
+        reference_mob: MOB to calculate scale factor from (default: 6)
+
+    Returns:
+        tuple: (scaled_rate, scale_factor) or (None, None) if insufficient data
+    """
+    cohort_str = clean_cohort(cohort)
+    donor_cohort_str = clean_cohort(donor_cohort)
+
+    # Step 1: Find the latest MOB where both target and donor have data
+    # This becomes our reference point for calculating the scale factor
+    target_mask = (
+        (curves_df['Segment'] == segment) &
+        (curves_df['Cohort'] == cohort_str) &
+        (curves_df['MOB'] >= Config.MOB_THRESHOLD)
+    )
+    target_data = curves_df[target_mask].copy()
+
+    if len(target_data) == 0 or metric_col not in target_data.columns:
+        return None, None
+
+    # Get max MOB for target cohort (this is our actual data boundary)
+    target_max_mob = target_data['MOB'].max()
+
+    # Use the max available MOB as reference (or specified reference_mob if available)
+    actual_reference_mob = min(target_max_mob, reference_mob) if reference_mob else target_max_mob
+
+    # Get target's rate at reference MOB
+    target_ref_mask = (
+        (curves_df['Segment'] == segment) &
+        (curves_df['Cohort'] == cohort_str) &
+        (curves_df['MOB'] == actual_reference_mob)
+    )
+    target_ref_data = curves_df[target_ref_mask]
+
+    if len(target_ref_data) == 0:
+        # Try to find closest available MOB
+        valid_mobs = target_data['MOB'].unique()
+        if len(valid_mobs) == 0:
+            return None, None
+        actual_reference_mob = max(valid_mobs)
+        target_ref_mask = (
+            (curves_df['Segment'] == segment) &
+            (curves_df['Cohort'] == cohort_str) &
+            (curves_df['MOB'] == actual_reference_mob)
+        )
+        target_ref_data = curves_df[target_ref_mask]
+
+    if len(target_ref_data) == 0:
+        return None, None
+
+    target_rate_at_ref = target_ref_data[metric_col].iloc[0]
+    if pd.isna(target_rate_at_ref) or target_rate_at_ref == 0:
+        return None, None
+
+    # Step 2: Get donor's rate at the same reference MOB
+    donor_ref_mask = (
+        (curves_df['Segment'] == segment) &
+        (curves_df['Cohort'] == donor_cohort_str) &
+        (curves_df['MOB'] == actual_reference_mob)
+    )
+    donor_ref_data = curves_df[donor_ref_mask]
+
+    if len(donor_ref_data) == 0 or metric_col not in donor_ref_data.columns:
+        return None, None
+
+    donor_rate_at_ref = donor_ref_data[metric_col].iloc[0]
+    if pd.isna(donor_rate_at_ref) or donor_rate_at_ref == 0:
+        return None, None
+
+    # Step 3: Calculate scale factor
+    scale_factor = target_rate_at_ref / donor_rate_at_ref
+
+    # Step 4: Get donor's rate at the forecast MOB
+    donor_forecast_mask = (
+        (curves_df['Segment'] == segment) &
+        (curves_df['Cohort'] == donor_cohort_str) &
+        (curves_df['MOB'] == mob)
+    )
+    donor_forecast_data = curves_df[donor_forecast_mask]
+
+    if len(donor_forecast_data) == 0:
+        return None, None
+
+    donor_rate_at_forecast = donor_forecast_data[metric_col].iloc[0]
+    if pd.isna(donor_rate_at_forecast):
+        return None, None
+
+    # Step 5: Apply scale factor to get scaled forecast
+    scaled_rate = donor_rate_at_forecast * scale_factor
+
+    return float(scaled_rate), float(scale_factor)
+
+
 def fn_seg_median(curves_df: pd.DataFrame, segment: str, mob: int,
                   metric_col: str) -> Optional[float]:
     """
@@ -1345,6 +1669,42 @@ def apply_approach(curves_df: pd.DataFrame, segment: str, cohort: str,
             return {'Rate': rate, 'ApproachTag': f'DonorCohort:{donor}'}
         else:
             return {'Rate': 0.0, 'ApproachTag': f'DonorCohort_NoData_ERROR:{donor}'}
+
+    elif approach == 'ScaledDonor':
+        # ScaledDonor copies the SHAPE of the donor curve, not the exact rates
+        # Param1 = donor cohort, Param2 = reference MOB (optional, defaults to latest available)
+        if param1 is None or param1 == 'None':
+            return {'Rate': 0.0, 'ApproachTag': 'ScaledDonor_NoParam_ERROR'}
+
+        donor = clean_cohort(param1)
+        param2 = methodology.get('Param2')
+
+        # Parse reference MOB from Param2 if provided
+        reference_mob = None
+        if param2 and param2 != 'None' and param2 != 'nan':
+            try:
+                reference_mob = int(float(param2))
+            except (ValueError, TypeError):
+                reference_mob = None
+
+        # Get scaled rate
+        scaled_rate, scale_factor = fn_scaled_donor(
+            curves_df, segment, cohort, donor, mob, metric_col, reference_mob
+        )
+
+        if scaled_rate is not None:
+            # Include scale factor in approach tag for transparency
+            return {
+                'Rate': scaled_rate,
+                'ApproachTag': f'ScaledDonor:{donor}(x{scale_factor:.3f})'
+            }
+        else:
+            # Fallback to regular DonorCohort if ScaledDonor fails
+            rate = fn_donor_cohort(curves_df, segment, donor, mob, metric_col)
+            if rate is not None:
+                return {'Rate': rate, 'ApproachTag': f'ScaledDonor_FallbackDonor:{donor}'}
+            else:
+                return {'Rate': 0.0, 'ApproachTag': f'ScaledDonor_NoData_ERROR:{donor}'}
 
     else:
         return {'Rate': 0.0, 'ApproachTag': f'UnknownApproach_ERROR:{approach}'}
@@ -1552,8 +1912,21 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
                         result['Rate'] = avg_coverage
 
             capped_rate = apply_rate_cap(result['Rate'], 'Total_Coverage_Ratio', result['ApproachTag'])
-            row['Total_Coverage_Ratio'] = capped_rate
-            row['Total_Coverage_Approach'] = result['ApproachTag']
+
+            # Apply seasonal adjustment if enabled
+            # The base rate from approaches is considered "de-seasonalized"
+            # We re-apply seasonality based on the forecast month
+            if Config.ENABLE_SEASONALITY:
+                forecast_month_num = forecast_month.month
+                seasonal_factor = get_seasonal_factor(segment, forecast_month_num)
+                seasonalized_rate = capped_rate * seasonal_factor
+                row['Total_Coverage_Ratio'] = seasonalized_rate
+                row['Total_Coverage_Ratio_Base'] = capped_rate  # Store base rate for transparency
+                row['Seasonal_Factor'] = seasonal_factor
+                row['Total_Coverage_Approach'] = f"{result['ApproachTag']}+Seasonal({seasonal_factor:.3f})"
+            else:
+                row['Total_Coverage_Ratio'] = capped_rate
+                row['Total_Coverage_Approach'] = result['ApproachTag']
 
             # Set defaults for debt sale ratios if not already set
             if 'Debt_Sale_Coverage_Ratio' not in row:
@@ -2163,34 +2536,41 @@ def run_backbook_forecast(fact_raw_path: str, methodology_path: str,
 
     try:
         # 1. Load data
-        logger.info("\n[Step 1/8] Loading data...")
+        logger.info("\n[Step 1/9] Loading data...")
         fact_raw = load_fact_raw(fact_raw_path)
         methodology = load_rate_methodology(methodology_path)
         debt_sale_schedule = load_debt_sale_schedule(debt_sale_path)
 
+        # 1b. Calculate seasonal factors from historical data
+        if Config.ENABLE_SEASONALITY:
+            logger.info("\n[Step 1b/9] Calculating seasonal factors...")
+            calculate_seasonal_factors(fact_raw)
+        else:
+            logger.info("\n[Step 1b/9] Seasonality disabled - skipping seasonal factor calculation")
+
         # 2. Calculate curves
-        logger.info("\n[Step 2/8] Calculating curves...")
+        logger.info("\n[Step 2/9] Calculating curves...")
         curves_base = calculate_curves_base(fact_raw)
         curves_extended = extend_curves(curves_base, max_months)
 
         # 3. Calculate impairment curves
-        logger.info("\n[Step 3/8] Calculating impairment curves...")
+        logger.info("\n[Step 3/9] Calculating impairment curves...")
         impairment_actuals = calculate_impairment_actuals(fact_raw)
         impairment_curves = calculate_impairment_curves(impairment_actuals)
 
         # 4. Generate seeds
-        logger.info("\n[Step 4/8] Generating seeds...")
+        logger.info("\n[Step 4/9] Generating seeds...")
         seed = generate_seed_curves(fact_raw)
 
         # 5. Build rate lookups
-        logger.info("\n[Step 5/8] Building rate lookups...")
+        logger.info("\n[Step 5/9] Building rate lookups...")
         rate_lookup = build_rate_lookup(seed, curves_extended, methodology, max_months)
         impairment_lookup = build_impairment_lookup(
             seed, impairment_curves, methodology, max_months, debt_sale_schedule
         )
 
         # 6. Run forecast
-        logger.info("\n[Step 6/8] Running forecast...")
+        logger.info("\n[Step 6/9] Running forecast...")
         forecast = run_forecast(seed, rate_lookup, impairment_lookup, max_months)
 
         if len(forecast) == 0:
@@ -2198,14 +2578,14 @@ def run_backbook_forecast(fact_raw_path: str, methodology_path: str,
             return pd.DataFrame()
 
         # 7. Generate outputs
-        logger.info("\n[Step 7/8] Generating outputs...")
+        logger.info("\n[Step 7/9] Generating outputs...")
         summary = generate_summary_output(forecast)
         details = generate_details_output(forecast)
         impairment = generate_impairment_output(forecast)
         reconciliation, validation = generate_validation_output(forecast)
 
         # 8. Export to Excel
-        logger.info("\n[Step 8/8] Exporting to Excel...")
+        logger.info("\n[Step 8/9] Exporting to Excel...")
         export_to_excel(summary, details, impairment, reconciliation, validation, output_dir)
 
         end_time = datetime.now()

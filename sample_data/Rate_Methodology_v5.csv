@@ -1,0 +1,126 @@
+Segment,Cohort,Metric,MOB_Start,MOB_End,Approach,Param1,Param2,Explanation
+ALL,ALL,Coll_Principal,0,999,CohortAvg,6,,Default: Rolling average of last 6 MOBs for collection rates
+ALL,ALL,Coll_Interest,0,999,CohortAvg,6,,Default: Rolling average of last 6 MOBs for interest collections
+ALL,ALL,InterestRevenue,0,999,CohortAvg,6,,Default: Rolling average of last 6 MOBs for interest accrual
+ALL,ALL,WO_DebtSold,0,999,CohortAvg,6,,Default: Rolling average for debt sale writeoffs
+ALL,ALL,WO_Other,0,999,CohortAvg,6,,Default: Rolling average for other writeoffs
+ALL,ALL,ContraSettlements_Principal,0,999,CohortAvg,6,,Default: Rolling average for principal settlements
+ALL,ALL,ContraSettlements_Interest,0,999,CohortAvg,6,,Default: Rolling average for interest settlements
+ALL,ALL,NewLoanAmount,0,999,Zero,,,No new loans in backbook forecast
+ALL,ALL,Debt_Sale_Coverage_Ratio,0,999,Manual,0.85,,Fixed assumption: 85% coverage for debt sale pool
+ALL,ALL,Debt_Sale_Proceeds_Rate,0,999,Manual,0.9,,Fixed assumption: 90p per GBV sold
+NON PRIME,201912,Total_Coverage_Ratio,0,999,CohortAvg,6,,Mature cohort stabilized at ~100% CR - use rolling average to maintain plateau
+NON PRIME,202001,Total_Coverage_Ratio,0,999,CohortAvg,6,,Mature clustered cohort at ~100% CR - use rolling average to maintain plateau
+NON PRIME,202101,Total_Coverage_Ratio,0,999,CohortAvg,6,,Mature clustered cohort reached 100% CR plateau - rolling average maintains stability
+NON PRIME,202201,Total_Coverage_Ratio,0,999,CohortTrend,6,,Strong increasing trend (slope 0.017) - CR at 78% and rising - extrapolate trend
+NON PRIME,202301,Total_Coverage_Ratio,0,999,CohortTrend,6,,Strong increasing trend (slope 0.018) - CR at 48% and rising - extrapolate trend
+NON PRIME,202404,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.021) - CR at 30% - extrapolate trend
+NON PRIME,202405,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.023) - CR at 32% - extrapolate trend
+NON PRIME,202406,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.022) - CR at 27% - extrapolate trend
+NON PRIME,202407,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.022) - CR at 25% - extrapolate trend
+NON PRIME,202408,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.024) - CR at 25% - extrapolate trend
+NON PRIME,202409,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.023) - CR at 22% - extrapolate trend
+NON PRIME,202410,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.025) - CR at 20% - extrapolate trend
+NON PRIME,202411,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.025) - CR at 17% - extrapolate trend
+NON PRIME,202412,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.023) - CR at 14% - extrapolate trend
+NON PRIME,202501,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.021) - CR at 10% - extrapolate trend
+NON PRIME,202502,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.023) - CR at 9% - extrapolate trend
+NON PRIME,202503,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.023) - CR at 7% - extrapolate trend
+NON PRIME,202504,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (6 months) - borrow from 202301 until more data available
+NON PRIME,202504,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NON PRIME,202505,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (5 months) - borrow from 202301 until more data available
+NON PRIME,202505,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NON PRIME,202506,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (4 months) - borrow from 202301 until more data available
+NON PRIME,202506,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NON PRIME,202507,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (3 months) - borrow from 202301 until more data available
+NON PRIME,202507,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NON PRIME,202508,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (2 months) - borrow from 202301 until more data available
+NON PRIME,202508,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NON PRIME,202509,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (1 month) - borrow from 202301 until more data available
+NON PRIME,202509,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-S,201912,Total_Coverage_Ratio,0,999,CohortAvg,6,,Mature cohort at ~100% CR plateau - rolling average maintains stability
+NRP-S,202001,Total_Coverage_Ratio,0,999,CohortAvg,6,,Mature clustered cohort - volatile but has data - use rolling average for stability
+NRP-S,202101,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.005) - CR at 37% still rising - extrapolate trend
+NRP-S,202201,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.009) - CR at 35% - extrapolate trend
+NRP-S,202301,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.009) - CR at 21% - extrapolate trend
+NRP-S,202404,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.010) - CR at 14% - extrapolate trend
+NRP-S,202405,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.011) - CR at 14% - extrapolate trend
+NRP-S,202406,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.010) - CR at 11% - extrapolate trend
+NRP-S,202407,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.009) - CR at 10% - extrapolate trend
+NRP-S,202408,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.010) - CR at 10% - extrapolate trend
+NRP-S,202409,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.009) - CR at 8% - extrapolate trend
+NRP-S,202410,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.010) - CR at 8% - extrapolate trend
+NRP-S,202411,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.009) - CR at 6% - extrapolate trend
+NRP-S,202412,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.009) - CR at 5% - extrapolate trend
+NRP-S,202501,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.009) - CR at 4% - extrapolate trend
+NRP-S,202502,Total_Coverage_Ratio,0,999,CohortTrend,6,,Clear increasing trend (slope 0.009) - CR at 3% - extrapolate trend
+NRP-S,202503,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.007) - extrapolate trend
+NRP-S,202504,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (6 months) - borrow from 202301 until more data available
+NRP-S,202504,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-S,202505,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (5 months) - borrow from 202301 until more data available
+NRP-S,202505,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-S,202506,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (4 months) - borrow from 202301 until more data available
+NRP-S,202506,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-S,202507,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (3 months) - borrow from 202301 until more data available
+NRP-S,202507,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-S,202508,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (2 months) - borrow from 202301 until more data available
+NRP-S,202508,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-S,202509,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) (1 month) - borrow from 202301 until more data available
+NRP-S,202509,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-M,202001,Total_Coverage_Ratio,0,999,Manual,0,,CR has been 0 for recent months - no provisions being held - use 0
+NRP-M,202101,Total_Coverage_Ratio,0,999,CohortAvg,6,,Only mature NRP-M with meaningful data - use rolling average (CR ~18%)
+NRP-M,202201,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.005) - CR at 15% - extrapolate trend
+NRP-M,202301,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.006) - CR at 8% - extrapolate trend
+NRP-M,202404,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.008) - CR at 11% - extrapolate trend
+NRP-M,202405,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.007) - CR at 9% - extrapolate trend
+NRP-M,202406,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.010) - CR at 12% - extrapolate trend
+NRP-M,202407,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.008) - CR at 9% - extrapolate trend
+NRP-M,202408,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.008) - CR at 7% - extrapolate trend
+NRP-M,202409,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.007) - CR at 6% - extrapolate trend
+NRP-M,202410,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.010) - CR at 7% - extrapolate trend
+NRP-M,202411,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.006) - CR at 4% - extrapolate trend
+NRP-M,202412,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.009) - CR at 6% - extrapolate trend
+NRP-M,202501,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.008) - CR at 4% - extrapolate trend
+NRP-M,202502,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.006) - CR at 2% - extrapolate trend
+NRP-M,202503,Total_Coverage_Ratio,0,999,CohortTrend,6,,Increasing trend (slope 0.006) - extrapolate trend
+NRP-M,202504,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) - borrow from 202301 until more data available
+NRP-M,202504,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-M,202505,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) - borrow from 202301 until more data available
+NRP-M,202505,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-M,202506,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) - borrow from 202301 until more data available
+NRP-M,202506,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-M,202507,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) - borrow from 202301 until more data available
+NRP-M,202507,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-M,202508,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) - borrow from 202301 until more data available
+NRP-M,202508,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-M,202509,Total_Coverage_Ratio,0,5,ScaledDonor,202301,,Very young cohort - SCALED from 202301 (copies shape not rates) - borrow from 202301 until more data available
+NRP-M,202509,Total_Coverage_Ratio,6,999,CohortTrend,6,,Once sufficient data exists extrapolate the increasing trend
+NRP-L,202301,Total_Coverage_Ratio,0,999,CohortAvg,6,,Only mature NRP-L cohort - volatile (CV 0.94) but has data - use rolling average
+NRP-L,202404,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - only mature NRP-L - recent CR 12%
+NRP-L,202405,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - recent CR 11% - volatile pattern
+NRP-L,202406,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - low CR (5%) - insufficient own data
+NRP-L,202407,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - CR 7% - insufficient own data
+NRP-L,202408,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - CR 8% - insufficient own data
+NRP-L,202409,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - CR 4% - insufficient own data
+NRP-L,202410,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - low CR 3% and stable - insufficient own data
+NRP-L,202411,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - CR 10% - insufficient own data
+NRP-L,202412,Total_Coverage_Ratio,0,999,ScaledDonor,202301,,SCALED from 202301 (copies shape not rates) - volatile CR (11%) - insufficient own data
+NRP-L,202501,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+NRP-L,202502,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+NRP-L,202503,Total_Coverage_Ratio,0,999,DonorCohort,202301,,Some data exists (CR spike to 8.5%) - borrow from 202301
+NRP-L,202504,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+NRP-L,202505,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+NRP-L,202506,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+NRP-L,202507,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+NRP-L,202508,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+NRP-L,202509,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held - use 0
+PRIME,202101,Total_Coverage_Ratio,0,999,CohortAvg,6,,Only mature PRIME cohort with data - CR ~20% - use rolling average
+PRIME,202201,Total_Coverage_Ratio,0,999,CohortAvg,6,,Low but stable CR (~3%) - use rolling average for stability
+PRIME,202405,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held for this cohort
+PRIME,202407,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held for this cohort
+PRIME,202409,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held for this cohort
+PRIME,202504,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held for this cohort
+PRIME,202507,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held for this cohort
+PRIME,202508,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held for this cohort
+PRIME,202509,Total_Coverage_Ratio,0,999,Manual,0,,CR consistently 0 - no provisions being held for this cohort
+ALL,ALL,Total_Coverage_Ratio,0,999,CohortAvg,6,,Default fallback: use rolling average for any undefined segment x cohort
