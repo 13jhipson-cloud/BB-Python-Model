@@ -31,7 +31,8 @@ from backbook_forecast import (
     extend_curves, generate_seed_curves, build_rate_lookup,
     build_impairment_lookup, run_forecast, get_methodology,
     clean_cohort, safe_divide, Config,
-    calculate_impairment_actuals, calculate_impairment_curves
+    calculate_impairment_actuals, calculate_impairment_curves,
+    calculate_seasonal_factors, get_seasonal_factor
 )
 
 
@@ -48,14 +49,38 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
     # ==========================================================================
     # STEP 1: Load all data
     # ==========================================================================
-    print("\n[1/7] Loading data...")
+    print("\n[1/8] Loading data...")
     fact_raw = load_fact_raw(fact_raw_path)
     methodology = load_rate_methodology(methodology_path)
 
     # ==========================================================================
+    # STEP 1b: Calculate Seasonal Factors
+    # ==========================================================================
+    print("[1b/8] Calculating seasonal factors...")
+    if Config.ENABLE_SEASONALITY:
+        seasonal_factors = calculate_seasonal_factors(fact_raw)
+        print("  Seasonal factors calculated by segment and month")
+        # Create a DataFrame of seasonal factors for output
+        seasonal_rows = []
+        for segment, factors in seasonal_factors.items():
+            for month, factor in factors.items():
+                seasonal_rows.append({
+                    'Segment': segment,
+                    'Month_Number': month,
+                    'Month_Name': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month-1],
+                    'Seasonal_Factor': round(factor, 4),
+                    'Interpretation': f"CR typically {'higher' if factor > 1 else 'lower'} than average by {abs(factor-1)*100:.1f}%"
+                })
+        seasonal_factors_df = pd.DataFrame(seasonal_rows)
+    else:
+        print("  Seasonality disabled")
+        seasonal_factors_df = pd.DataFrame()
+
+    # ==========================================================================
     # STEP 2: Prepare Actuals Data sheet
     # ==========================================================================
-    print("[2/7] Preparing actuals data...")
+    print("[2/8] Preparing actuals data...")
 
     actuals_df = fact_raw.copy()
 
@@ -89,7 +114,7 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
     # ==========================================================================
     # STEP 3: Calculate Historical Rate Curves
     # ==========================================================================
-    print("[3/7] Calculating historical rate curves...")
+    print("[3/8] Calculating historical rate curves...")
 
     curves_base = calculate_curves_base(fact_raw)
 
@@ -111,7 +136,7 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
     # ==========================================================================
     # STEP 4: Generate Extended Curves
     # ==========================================================================
-    print("[4/7] Generating extended forecast curves...")
+    print("[4/8] Generating extended forecast curves...")
 
     curves_extended = extend_curves(curves_base, forecast_months)
 
@@ -128,7 +153,7 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
     # ==========================================================================
     # STEP 5: Build Methodology Applied sheet
     # ==========================================================================
-    print("[5/7] Building methodology lookup...")
+    print("[5/8] Building methodology lookup...")
 
     # Generate seeds
     seed = generate_seed_curves(fact_raw)
@@ -158,7 +183,7 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
     # ==========================================================================
     # STEP 6: Run Forecast
     # ==========================================================================
-    print("[6/7] Running forecast...")
+    print("[6/8] Running forecast...")
 
     forecast = run_forecast(seed, rate_lookup, impairment_lookup, forecast_months)
 
@@ -169,7 +194,7 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
     # ==========================================================================
     # STEP 7: Create Combined Actuals + Forecast sheet
     # ==========================================================================
-    print("[7/7] Creating combined view...")
+    print("[7/8] Creating combined view...")
 
     # Build actuals rows manually
     actuals_rows = []
@@ -243,7 +268,8 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
                 '4_Methodology_Applied',
                 '5_Forecast_Output',
                 '6_Combined_View',
-                '7_Rate_Methodology_Rules'
+                '7_Rate_Methodology_Rules',
+                '8_Seasonal_Factors'
             ],
             'Description': [
                 'Raw historical data with calculated rates for each month',
@@ -252,7 +278,8 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
                 'Which forecast approach was used for each Segment × Cohort × MOB × Metric',
                 'Final forecast output with all calculated amounts',
                 'Actuals + Forecast combined for easy comparison and charting',
-                'The methodology rules from Rate_Methodology.csv'
+                'The methodology rules from Rate_Methodology.csv',
+                'Seasonal adjustment factors by Segment and Month (for Coverage Ratio)'
             ],
             'Use For': [
                 'Pivot tables showing historical trends, validating raw data',
@@ -261,7 +288,8 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
                 'Auditing which approach (CohortAvg, Manual, etc.) was used',
                 'Final forecast numbers for reporting',
                 'Building charts showing Actual vs Forecast over time',
-                'Reference for methodology rules'
+                'Reference for methodology rules',
+                'Understanding how monthly seasonality affects CR forecasts'
             ]
         }
         readme_df = pd.DataFrame(readme_data)
@@ -288,6 +316,10 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
         # Sheet 8: Methodology Rules
         methodology.to_excel(writer, sheet_name='7_Rate_Methodology_Rules', index=False)
 
+        # Sheet 9: Seasonal Factors
+        if len(seasonal_factors_df) > 0:
+            seasonal_factors_df.to_excel(writer, sheet_name='8_Seasonal_Factors', index=False)
+
     print(f"\n{'=' * 70}")
     print(f"SUCCESS! Report saved to: {output_path}")
     print(f"{'=' * 70}")
@@ -301,6 +333,7 @@ def generate_transparency_report(fact_raw_path: str, methodology_path: str,
     print("  - 5_Forecast_Output: Final forecast amounts")
     print("  - 6_Combined_View: Actuals + Forecast for charting")
     print("  - 7_Rate_Methodology_Rules: Your methodology rules")
+    print("  - 8_Seasonal_Factors: Monthly adjustment factors by segment")
 
     print("\nSuggested Pivot Tables:")
     print("  1. From '6_Combined_View': Rows=Month, Columns=DataType, Values=Sum of ClosingGBV")

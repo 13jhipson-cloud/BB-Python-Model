@@ -2125,7 +2125,9 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
             # GBV
             'ClosingGBV': round(closing_gbv, 2),
 
-            # Impairment
+            # Impairment - with full transparency breakdown
+            'Total_Coverage_Ratio_Base': round(imp_rates.get('Total_Coverage_Ratio_Base', total_coverage_ratio), 6),
+            'Seasonal_Factor': round(imp_rates.get('Seasonal_Factor', 1.0), 4),
             'Total_Coverage_Ratio': round(total_coverage_ratio, 6),
             'Total_Coverage_Approach': imp_rates.get('Total_Coverage_Approach', ''),
             'Total_Provision_Balance': round(total_provision_balance, 2),
