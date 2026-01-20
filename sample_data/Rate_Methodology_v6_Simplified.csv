@@ -1,0 +1,43 @@
+Segment,Cohort,Metric,MOB_Start,MOB_End,Approach,Param1,Param2,Explanation
+ALL,ALL,Coll_Principal,0,999,CohortAvg,6,,Rolling 6-period average for collections
+ALL,ALL,Coll_Interest,0,999,CohortAvg,6,,Rolling 6-period average for interest collections
+ALL,ALL,InterestRevenue,0,999,CohortAvg,6,,Rolling 6-period average for interest accrual
+ALL,ALL,WO_DebtSold,0,999,CohortAvg,6,,Rolling 6-period average for debt sale writeoffs
+ALL,ALL,WO_Other,0,999,CohortAvg,6,,Rolling 6-period average for other writeoffs
+ALL,ALL,ContraSettlements_Principal,0,999,CohortAvg,6,,Rolling average for settlements
+ALL,ALL,ContraSettlements_Interest,0,999,CohortAvg,6,,Rolling average for interest settlements
+ALL,ALL,NewLoanAmount,0,999,Zero,,,No new loans in backbook forecast
+ALL,ALL,Debt_Sale_Coverage_Ratio,0,999,Manual,0.85,,Fixed 85% coverage for debt sale pool
+ALL,ALL,Debt_Sale_Proceeds_Rate,0,999,Manual,0.9,,Fixed 90p per GBV sold
+NON PRIME,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: stabilized - use rolling average
+NON PRIME,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: still trending up - extrapolate
+NON PRIME,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
+NRP-S,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: stabilized - use rolling average
+NRP-S,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: still trending - extrapolate
+NRP-S,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
+NRP-M,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: stabilized - use rolling average
+NRP-M,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: still trending - extrapolate
+NRP-M,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
+NRP-M,202001,Total_Coverage_Ratio,0,999,Manual,0,,Exception: This cohort has 0 CR historically
+NRP-L,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: use rolling average
+NRP-L,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: extrapolate trend
+NRP-L,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202301,,Young cohorts: borrow from 202301 (only mature NRP-L)
+NRP-L,202501,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202502,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202504,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202505,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202506,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202507,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202508,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202509,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: use rolling average
+PRIME,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: extrapolate trend
+PRIME,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
+PRIME,202405,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202407,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202409,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202504,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202507,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202508,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202509,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+ALL,ALL,Total_Coverage_Ratio,0,999,CohortAvg,6,,Fallback: rolling average for any undefined combination
