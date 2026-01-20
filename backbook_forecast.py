@@ -88,6 +88,10 @@ class Config:
     ENABLE_SEASONALITY: bool = True  # Enable seasonal adjustment for coverage ratios
     SEASONALITY_METRIC: str = 'Total_Coverage_Ratio'  # Metric to apply seasonality to
 
+    # Overlay configuration
+    ENABLE_OVERLAYS: bool = True  # Enable overlay adjustments
+    OVERLAY_FILE: str = 'sample_data/Overlays.csv'  # Path to overlay configuration file
+
 
 # =============================================================================
 # SECTION 2: HELPER FUNCTIONS
@@ -611,6 +615,161 @@ def add_deseasonalized_cr_to_curves(curves: pd.DataFrame, fact_raw: pd.DataFrame
 
     logger.info("De-seasonalized coverage ratios added successfully")
     return curves_with_month
+
+
+# =============================================================================
+# SECTION 2D: OVERLAY FUNCTIONS
+# =============================================================================
+# Overlay functionality allows users to apply manual adjustments to forecasted rates
+# Overlays are applied AFTER base rate calculation and seasonality adjustment
+# This enables scenario analysis and manual corrections
+
+# Global storage for overlay rules
+_overlay_rules: List[Dict[str, Any]] = []
+
+
+def load_overlays(filepath: str = None) -> List[Dict[str, Any]]:
+    """
+    Load overlay rules from CSV file.
+
+    Overlay CSV format:
+        Segment,Cohort,Metric,MOB_Start,MOB_End,ForecastMonth_Start,ForecastMonth_End,Type,Value,Explanation
+
+    Type options:
+        - Multiply: Rate × Value (e.g., 1.05 = +5%)
+        - Add: Rate + Value (e.g., 0.01 = +1%)
+        - Replace: Use Value directly
+
+    Args:
+        filepath: Path to overlay CSV file. If None, uses Config.OVERLAY_FILE
+
+    Returns:
+        List[Dict]: List of overlay rule dictionaries
+    """
+    global _overlay_rules
+
+    if filepath is None:
+        filepath = Config.OVERLAY_FILE
+
+    if not os.path.exists(filepath):
+        logger.info(f"No overlay file found at {filepath}, overlays disabled")
+        _overlay_rules = []
+        return []
+
+    logger.info(f"Loading overlays from: {filepath}")
+
+    try:
+        df = pd.read_csv(filepath, comment='#')
+
+        # Skip empty files
+        if len(df) == 0:
+            logger.info("Overlay file is empty, no overlays applied")
+            _overlay_rules = []
+            return []
+
+        rules = []
+        for _, row in df.iterrows():
+            rule = {
+                'Segment': str(row.get('Segment', 'ALL')).strip().upper(),
+                'Cohort': str(row.get('Cohort', 'ALL')).strip().upper(),
+                'Metric': str(row.get('Metric', '')).strip(),
+                'MOB_Start': int(row.get('MOB_Start', 0)),
+                'MOB_End': int(row.get('MOB_End', 999)),
+                'ForecastMonth_Start': pd.to_datetime(row.get('ForecastMonth_Start')) if pd.notna(row.get('ForecastMonth_Start')) else None,
+                'ForecastMonth_End': pd.to_datetime(row.get('ForecastMonth_End')) if pd.notna(row.get('ForecastMonth_End')) else None,
+                'Type': str(row.get('Type', 'Multiply')).strip().capitalize(),
+                'Value': float(row.get('Value', 1.0)),
+                'Explanation': str(row.get('Explanation', '')),
+            }
+
+            # Validate rule
+            if rule['Metric'] and rule['Type'] in ['Multiply', 'Add', 'Replace']:
+                rules.append(rule)
+                logger.info(f"  Loaded overlay: {rule['Metric']} for {rule['Segment']}/{rule['Cohort']} "
+                           f"MOB {rule['MOB_Start']}-{rule['MOB_End']} -> {rule['Type']}({rule['Value']})")
+
+        _overlay_rules = rules
+        logger.info(f"Loaded {len(rules)} overlay rules")
+        return rules
+
+    except Exception as e:
+        logger.warning(f"Error loading overlays: {e}")
+        _overlay_rules = []
+        return []
+
+
+def apply_overlay(rate: float, metric: str, segment: str, cohort: str,
+                  mob: int, forecast_month: pd.Timestamp = None) -> Tuple[float, str]:
+    """
+    Apply overlay adjustments to a rate.
+
+    Args:
+        rate: Base rate value
+        metric: Metric name (e.g., 'Total_Coverage_Ratio')
+        segment: Segment name
+        cohort: Cohort identifier
+        mob: Month-on-book
+        forecast_month: Forecast month timestamp (optional, for date filtering)
+
+    Returns:
+        Tuple[float, str]: (adjusted_rate, overlay_description)
+            overlay_description is empty string if no overlay applied
+    """
+    global _overlay_rules
+
+    if not _overlay_rules or not Config.ENABLE_OVERLAYS:
+        return rate, ''
+
+    # Normalize inputs
+    segment_upper = segment.upper()
+    cohort_str = str(cohort).upper()
+
+    adjusted_rate = rate
+    descriptions = []
+
+    for rule in _overlay_rules:
+        # Check metric match
+        if rule['Metric'] != metric:
+            continue
+
+        # Check segment match (ALL matches any)
+        if rule['Segment'] != 'ALL' and rule['Segment'] != segment_upper:
+            continue
+
+        # Check cohort match (ALL matches any)
+        if rule['Cohort'] != 'ALL' and rule['Cohort'] != cohort_str:
+            continue
+
+        # Check MOB range
+        if not (rule['MOB_Start'] <= mob <= rule['MOB_End']):
+            continue
+
+        # Check forecast month range (if specified)
+        if forecast_month is not None:
+            if rule['ForecastMonth_Start'] and forecast_month < rule['ForecastMonth_Start']:
+                continue
+            if rule['ForecastMonth_End'] and forecast_month > rule['ForecastMonth_End']:
+                continue
+
+        # Apply overlay
+        if rule['Type'] == 'Multiply':
+            adjusted_rate = adjusted_rate * rule['Value']
+            descriptions.append(f"×{rule['Value']:.4f}")
+        elif rule['Type'] == 'Add':
+            adjusted_rate = adjusted_rate + rule['Value']
+            descriptions.append(f"+{rule['Value']:.6f}")
+        elif rule['Type'] == 'Replace':
+            adjusted_rate = rule['Value']
+            descriptions.append(f"={rule['Value']:.6f}")
+
+    overlay_desc = '' if not descriptions else '+Overlay(' + ','.join(descriptions) + ')'
+    return adjusted_rate, overlay_desc
+
+
+def get_overlay_rules() -> List[Dict[str, Any]]:
+    """Get the currently loaded overlay rules."""
+    global _overlay_rules
+    return _overlay_rules.copy()
 
 
 # =============================================================================
@@ -1975,13 +2134,33 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
                 forecast_month_num = forecast_month.month
                 seasonal_factor = get_seasonal_factor(segment, forecast_month_num)
                 seasonalized_rate = capped_rate * seasonal_factor
-                row['Total_Coverage_Ratio'] = seasonalized_rate
+                approach_tag = f"{result['ApproachTag']}+Seasonal({seasonal_factor:.3f})"
                 row['Total_Coverage_Ratio_Base'] = capped_rate  # Store base rate for transparency
                 row['Seasonal_Factor'] = seasonal_factor
-                row['Total_Coverage_Approach'] = f"{result['ApproachTag']}+Seasonal({seasonal_factor:.3f})"
             else:
-                row['Total_Coverage_Ratio'] = capped_rate
-                row['Total_Coverage_Approach'] = result['ApproachTag']
+                seasonalized_rate = capped_rate
+                seasonal_factor = 1.0
+                approach_tag = result['ApproachTag']
+                row['Total_Coverage_Ratio_Base'] = capped_rate
+                row['Seasonal_Factor'] = 1.0
+
+            # Apply overlay adjustments if enabled (after seasonality)
+            if Config.ENABLE_OVERLAYS:
+                final_rate, overlay_desc = apply_overlay(
+                    rate=seasonalized_rate,
+                    metric='Total_Coverage_Ratio',
+                    segment=segment,
+                    cohort=cohort,
+                    mob=mob,
+                    forecast_month=forecast_month
+                )
+                row['Total_Coverage_Ratio'] = final_rate
+                row['Total_Coverage_Approach'] = approach_tag + overlay_desc
+                if overlay_desc:
+                    row['Overlay_Applied'] = overlay_desc
+            else:
+                row['Total_Coverage_Ratio'] = seasonalized_rate
+                row['Total_Coverage_Approach'] = approach_tag
 
             # Copy ScaledDonor traceability columns if present
             for key in ['ScaledDonor_Donor', 'ScaledDonor_RefMOB', 'ScaledDonor_TargetCR_AtRef',
@@ -2623,6 +2802,13 @@ def run_backbook_forecast(fact_raw_path: str, methodology_path: str,
             calculate_seasonal_factors(fact_raw)
         else:
             logger.info("\n[Step 1b/9] Seasonality disabled - skipping seasonal factor calculation")
+
+        # 1c. Load overlay adjustments
+        if Config.ENABLE_OVERLAYS:
+            logger.info("\n[Step 1c/9] Loading overlay adjustments...")
+            load_overlays()
+        else:
+            logger.info("\n[Step 1c/9] Overlays disabled - skipping overlay loading")
 
         # 2. Calculate curves
         logger.info("\n[Step 2/9] Calculating curves...")
