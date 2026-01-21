@@ -620,12 +620,28 @@ def add_deseasonalized_cr_to_curves(curves: pd.DataFrame, fact_raw: pd.DataFrame
 # =============================================================================
 # SECTION 2D: OVERLAY FUNCTIONS
 # =============================================================================
-# Overlay functionality allows users to apply manual adjustments to forecasted rates
-# Overlays are applied AFTER base rate calculation and seasonality adjustment
-# This enables scenario analysis and manual corrections
+# Overlay functionality allows users to apply manual adjustments to forecasted
+# OUTPUT METRICS (amounts like collections, impairment, revenue, etc.)
+# Overlays are applied AFTER all calculations are complete
+# This enables scenario analysis and manual corrections to final outputs
 
 # Global storage for overlay rules
 _overlay_rules: List[Dict[str, Any]] = []
+
+# Valid metrics that can be overlayed
+OVERLAY_METRICS = [
+    'Coll_Principal',
+    'Coll_Interest',
+    'InterestRevenue',
+    'WO_DebtSold',
+    'WO_Other',
+    'ClosingGBV',
+    'Total_Provision_Balance',
+    'Gross_Impairment_ExcludingDS',
+    'Debt_Sale_Impact',
+    'Net_Impairment',
+    'ClosingNBV',
+]
 
 
 def load_overlays(filepath: str = None) -> List[Dict[str, Any]]:
@@ -633,12 +649,21 @@ def load_overlays(filepath: str = None) -> List[Dict[str, Any]]:
     Load overlay rules from CSV file.
 
     Overlay CSV format:
-        Segment,Cohort,Metric,MOB_Start,MOB_End,ForecastMonth_Start,ForecastMonth_End,Type,Value,Explanation
+        Segment,ForecastMonth_Start,ForecastMonth_End,Metric,Type,Value,Explanation
 
     Type options:
-        - Multiply: Rate × Value (e.g., 1.05 = +5%)
-        - Add: Rate + Value (e.g., 0.01 = +1%)
+        - Multiply: Amount × Value (e.g., 0.95 = -5%)
+        - Add: Amount + Value (e.g., -1000000 = subtract £1m)
         - Replace: Use Value directly
+
+    Metrics that can be overlayed:
+        - Coll_Principal, Coll_Interest (collections)
+        - InterestRevenue
+        - WO_DebtSold, WO_Other (writeoffs)
+        - ClosingGBV
+        - Total_Provision_Balance
+        - Gross_Impairment_ExcludingDS, Debt_Sale_Impact, Net_Impairment
+        - ClosingNBV
 
     Args:
         filepath: Path to overlay CSV file. If None, uses Config.OVERLAY_FILE
@@ -671,10 +696,7 @@ def load_overlays(filepath: str = None) -> List[Dict[str, Any]]:
         for _, row in df.iterrows():
             rule = {
                 'Segment': str(row.get('Segment', 'ALL')).strip().upper(),
-                'Cohort': str(row.get('Cohort', 'ALL')).strip().upper(),
                 'Metric': str(row.get('Metric', '')).strip(),
-                'MOB_Start': int(row.get('MOB_Start', 0)),
-                'MOB_End': int(row.get('MOB_End', 999)),
                 'ForecastMonth_Start': pd.to_datetime(row.get('ForecastMonth_Start')) if pd.notna(row.get('ForecastMonth_Start')) else None,
                 'ForecastMonth_End': pd.to_datetime(row.get('ForecastMonth_End')) if pd.notna(row.get('ForecastMonth_End')) else None,
                 'Type': str(row.get('Type', 'Multiply')).strip().capitalize(),
@@ -684,9 +706,17 @@ def load_overlays(filepath: str = None) -> List[Dict[str, Any]]:
 
             # Validate rule
             if rule['Metric'] and rule['Type'] in ['Multiply', 'Add', 'Replace']:
+                if rule['Metric'] not in OVERLAY_METRICS:
+                    logger.warning(f"  Unknown overlay metric '{rule['Metric']}', skipping. Valid: {OVERLAY_METRICS}")
+                    continue
                 rules.append(rule)
-                logger.info(f"  Loaded overlay: {rule['Metric']} for {rule['Segment']}/{rule['Cohort']} "
-                           f"MOB {rule['MOB_Start']}-{rule['MOB_End']} -> {rule['Type']}({rule['Value']})")
+                date_range = ''
+                if rule['ForecastMonth_Start'] or rule['ForecastMonth_End']:
+                    start = rule['ForecastMonth_Start'].strftime('%Y-%m') if rule['ForecastMonth_Start'] else 'start'
+                    end = rule['ForecastMonth_End'].strftime('%Y-%m') if rule['ForecastMonth_End'] else 'end'
+                    date_range = f" ({start} to {end})"
+                logger.info(f"  Loaded overlay: {rule['Metric']} for {rule['Segment']}{date_range} "
+                           f"-> {rule['Type']}({rule['Value']})")
 
         _overlay_rules = rules
         logger.info(f"Loaded {len(rules)} overlay rules")
@@ -698,72 +728,86 @@ def load_overlays(filepath: str = None) -> List[Dict[str, Any]]:
         return []
 
 
-def apply_overlay(rate: float, metric: str, segment: str, cohort: str,
-                  mob: int, forecast_month: pd.Timestamp = None) -> Tuple[float, str]:
+def apply_metric_overlays(output_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Apply overlay adjustments to a rate.
+    Apply overlay adjustments to forecast output DataFrame.
+
+    Overlays are applied to final output metrics (amounts), not rates.
+    This allows users to adjust collections, impairment, revenue, etc.
 
     Args:
-        rate: Base rate value
-        metric: Metric name (e.g., 'Total_Coverage_Ratio')
-        segment: Segment name
-        cohort: Cohort identifier
-        mob: Month-on-book
-        forecast_month: Forecast month timestamp (optional, for date filtering)
+        output_df: DataFrame with forecast output rows
 
     Returns:
-        Tuple[float, str]: (adjusted_rate, overlay_description)
-            overlay_description is empty string if no overlay applied
+        pd.DataFrame: DataFrame with overlays applied and tracking columns added
     """
     global _overlay_rules
 
     if not _overlay_rules or not Config.ENABLE_OVERLAYS:
-        return rate, ''
+        return output_df
 
-    # Normalize inputs
-    segment_upper = segment.upper()
-    cohort_str = str(cohort).upper()
+    df = output_df.copy()
 
-    adjusted_rate = rate
-    descriptions = []
+    # Initialize overlay tracking column
+    df['Overlays_Applied'] = ''
 
     for rule in _overlay_rules:
-        # Check metric match
-        if rule['Metric'] != metric:
+        metric = rule['Metric']
+        segment = rule['Segment']
+        overlay_type = rule['Type']
+        value = rule['Value']
+
+        # Skip if metric not in DataFrame
+        if metric not in df.columns:
             continue
 
-        # Check segment match (ALL matches any)
-        if rule['Segment'] != 'ALL' and rule['Segment'] != segment_upper:
+        # Build mask for rows to apply overlay
+        mask = pd.Series([True] * len(df), index=df.index)
+
+        # Segment filter
+        if segment != 'ALL':
+            mask = mask & (df['Segment'].str.upper() == segment)
+
+        # Forecast month filter
+        if rule['ForecastMonth_Start'] is not None:
+            mask = mask & (df['ForecastMonth'] >= rule['ForecastMonth_Start'])
+        if rule['ForecastMonth_End'] is not None:
+            mask = mask & (df['ForecastMonth'] <= rule['ForecastMonth_End'])
+
+        if not mask.any():
             continue
 
-        # Check cohort match (ALL matches any)
-        if rule['Cohort'] != 'ALL' and rule['Cohort'] != cohort_str:
-            continue
-
-        # Check MOB range
-        if not (rule['MOB_Start'] <= mob <= rule['MOB_End']):
-            continue
-
-        # Check forecast month range (if specified)
-        if forecast_month is not None:
-            if rule['ForecastMonth_Start'] and forecast_month < rule['ForecastMonth_Start']:
-                continue
-            if rule['ForecastMonth_End'] and forecast_month > rule['ForecastMonth_End']:
-                continue
+        # Store original value for tracking
+        original_col = f'{metric}_PreOverlay'
+        if original_col not in df.columns:
+            df[original_col] = df[metric]
 
         # Apply overlay
-        if rule['Type'] == 'Multiply':
-            adjusted_rate = adjusted_rate * rule['Value']
-            descriptions.append(f"×{rule['Value']:.4f}")
-        elif rule['Type'] == 'Add':
-            adjusted_rate = adjusted_rate + rule['Value']
-            descriptions.append(f"+{rule['Value']:.6f}")
-        elif rule['Type'] == 'Replace':
-            adjusted_rate = rule['Value']
-            descriptions.append(f"={rule['Value']:.6f}")
+        if overlay_type == 'Multiply':
+            df.loc[mask, metric] = df.loc[mask, metric] * value
+            desc = f"{metric}×{value:.4f}"
+        elif overlay_type == 'Add':
+            df.loc[mask, metric] = df.loc[mask, metric] + value
+            desc = f"{metric}{value:+.2f}"
+        elif overlay_type == 'Replace':
+            df.loc[mask, metric] = value
+            desc = f"{metric}={value:.2f}"
+        else:
+            continue
 
-    overlay_desc = '' if not descriptions else '+Overlay(' + ','.join(descriptions) + ')'
-    return adjusted_rate, overlay_desc
+        # Track what overlay was applied
+        df.loc[mask, 'Overlays_Applied'] = df.loc[mask, 'Overlays_Applied'].apply(
+            lambda x: f"{x}; {desc}" if x else desc
+        )
+
+        logger.debug(f"Applied overlay: {desc} to {mask.sum()} rows")
+
+    # Log summary
+    overlay_rows = (df['Overlays_Applied'] != '').sum()
+    if overlay_rows > 0:
+        logger.info(f"Applied overlays to {overlay_rows} output rows")
+
+    return df
 
 
 def get_overlay_rules() -> List[Dict[str, Any]]:
@@ -2133,34 +2177,18 @@ def build_impairment_lookup(seed: pd.DataFrame, impairment_curves: pd.DataFrame,
             if Config.ENABLE_SEASONALITY:
                 forecast_month_num = forecast_month.month
                 seasonal_factor = get_seasonal_factor(segment, forecast_month_num)
-                seasonalized_rate = capped_rate * seasonal_factor
+                final_rate = capped_rate * seasonal_factor
                 approach_tag = f"{result['ApproachTag']}+Seasonal({seasonal_factor:.3f})"
                 row['Total_Coverage_Ratio_Base'] = capped_rate  # Store base rate for transparency
                 row['Seasonal_Factor'] = seasonal_factor
             else:
-                seasonalized_rate = capped_rate
-                seasonal_factor = 1.0
+                final_rate = capped_rate
                 approach_tag = result['ApproachTag']
                 row['Total_Coverage_Ratio_Base'] = capped_rate
                 row['Seasonal_Factor'] = 1.0
 
-            # Apply overlay adjustments if enabled (after seasonality)
-            if Config.ENABLE_OVERLAYS:
-                final_rate, overlay_desc = apply_overlay(
-                    rate=seasonalized_rate,
-                    metric='Total_Coverage_Ratio',
-                    segment=segment,
-                    cohort=cohort,
-                    mob=mob,
-                    forecast_month=forecast_month
-                )
-                row['Total_Coverage_Ratio'] = final_rate
-                row['Total_Coverage_Approach'] = approach_tag + overlay_desc
-                if overlay_desc:
-                    row['Overlay_Applied'] = overlay_desc
-            else:
-                row['Total_Coverage_Ratio'] = seasonalized_rate
-                row['Total_Coverage_Approach'] = approach_tag
+            row['Total_Coverage_Ratio'] = final_rate
+            row['Total_Coverage_Approach'] = approach_tag
 
             # Copy ScaledDonor traceability columns if present
             for key in ['ScaledDonor_Donor', 'ScaledDonor_RefMOB', 'ScaledDonor_TargetCR_AtRef',
@@ -2284,13 +2312,12 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         # =======================================================================
         # DEBT SALE AND IMPAIRMENT CALCULATION
         # =======================================================================
-        # User's expected calculation:
-        # - WO_DebtSold (forecast from rates) IS the Debt Sale WriteOffs
-        # - DS Coverage Ratio = 78.5% fixed for all
-        # - DS provision for DS pool = DS coverage ratio × WO_DebtSold
-        # - Core provision = Prior provision - DS provision for DS pool
-        # - Core GBV = Prior closing GBV - DS WriteOffs (i.e., OpeningGBV - WO_DebtSold)
-        # - Core coverage ratio = Core provision / Core GBV
+        # Calculation flow:
+        # 1. Total provision balance = Closing GBV × Coverage Ratio (current month)
+        # 2. DS provision for pool = DS Coverage Ratio × Debt Sale WriteOffs
+        # 3. Core provision = Total provision balance - DS provision for pool
+        # 4. Core GBV = Closing GBV (after debt sale writeoffs removed)
+        # 5. Core coverage ratio = Core provision / Core GBV
         # =======================================================================
 
         # Debt sale writeoffs = WO_DebtSold forecast from rates
@@ -2298,22 +2325,25 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         ds_coverage_ratio = Config.DS_COVERAGE_RATIO  # Fixed 78.5%
         ds_proceeds_rate = Config.DS_PROCEEDS_RATE  # Fixed 24p per £1 of GBV sold
 
+        # Calculate total provision balance FIRST (based on current month closing GBV)
+        total_coverage_ratio = imp_rates.get('Total_Coverage_Ratio', 0.12)
+        total_provision_balance = closing_gbv * total_coverage_ratio
+
         # Calculate DS provision for DS pool
         ds_provision_for_pool = ds_coverage_ratio * debt_sale_wo
 
         # Calculate core values (after removing debt sale portion)
-        core_provision = prior_provision - ds_provision_for_pool
-        core_gbv = opening_gbv - debt_sale_wo  # Prior closing = current opening
+        # Core provision = current month total provision - provision allocated to sold loans
+        core_provision = total_provision_balance - ds_provision_for_pool
+        core_gbv = closing_gbv  # GBV after debt sale writeoffs already removed
 
-        # Calculate core coverage ratio (provision on remaining "good" loans)
+        # Calculate core coverage ratio (provision on remaining "core" loans)
         core_coverage_ratio = safe_divide(core_provision, core_gbv, default=0.0)
 
         # Calculate DS proceeds
         ds_proceeds = ds_proceeds_rate * debt_sale_wo
 
-        # Total provision balance (based on methodology coverage ratio applied to closing GBV)
-        total_coverage_ratio = imp_rates.get('Total_Coverage_Ratio', 0.12)
-        total_provision_balance = closing_gbv * total_coverage_ratio
+        # Calculate provision movement
         total_provision_movement = total_provision_balance - prior_provision
 
         # Provision release from debt sale (provision that was covering sold loans)
@@ -2470,6 +2500,10 @@ def run_forecast(seed: pd.DataFrame, rate_lookup: pd.DataFrame,
 
     forecast = pd.concat(all_outputs, ignore_index=True)
     forecast = forecast.sort_values(['ForecastMonth', 'Segment', 'Cohort', 'MOB']).reset_index(drop=True)
+
+    # Apply metric overlays if enabled (adjustments to final output amounts)
+    if Config.ENABLE_OVERLAYS:
+        forecast = apply_metric_overlays(forecast)
 
     logger.info(f"Forecast complete with {len(forecast)} rows")
     return forecast
