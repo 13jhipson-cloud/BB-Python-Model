@@ -2312,51 +2312,51 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         # =======================================================================
         # DEBT SALE AND IMPAIRMENT CALCULATION
         # =======================================================================
-        # Calculation flow:
-        # 1. Total provision balance = Closing GBV × Coverage Ratio (current month)
-        # 2. DS provision for pool = DS Coverage Ratio × Debt Sale WriteOffs
-        # 3. Core provision = Total provision balance - DS provision for pool
-        # 4. Core GBV = Closing GBV (after debt sale writeoffs removed)
-        # 5. Core coverage ratio = Core provision / Core GBV
+        # Calculation flow per user specification:
+        # 1. Total provision balance = Closing GBV × Coverage Ratio
+        # 2. Total provision movement = Provision[t] - Provision[t-1]
+        # 3. DS provision release = DS Coverage Ratio × DS WriteOffs (sale months only)
+        # 4. DS proceeds = DS Proceeds Rate × DS WriteOffs (sale months only)
+        # 5. Non-DS provision movement = Total provision movement + DS provision release
+        # 6. Gross impairment (excl DS) = Non-DS provision movement + WO_Other
+        # 7. Debt sale impact = DS WriteOffs + DS provision release + DS proceeds
+        # 8. Net impairment = Gross impairment (excl DS) + Debt sale impact
+        #
+        # Core coverage is back-solved in post-processing for months BEFORE debt sales
         # =======================================================================
 
-        # Debt sale writeoffs = WO_DebtSold forecast from rates
-        debt_sale_wo = wo_debt_sold  # Use WO_DebtSold from rates as debt sale writeoffs
+        # Debt sale writeoffs = WO_DebtSold forecast from rates (only in DS months)
+        debt_sale_wo = wo_debt_sold
         ds_coverage_ratio = Config.DS_COVERAGE_RATIO  # Fixed 78.5%
         ds_proceeds_rate = Config.DS_PROCEEDS_RATE  # Fixed 24p per £1 of GBV sold
 
-        # Calculate total provision balance FIRST (based on current month closing GBV)
+        # Step 1: Calculate total provision balance (Closing GBV × Coverage Ratio)
         total_coverage_ratio = imp_rates.get('Total_Coverage_Ratio', 0.12)
         total_provision_balance = closing_gbv * total_coverage_ratio
 
-        # Calculate DS provision for DS pool
-        ds_provision_for_pool = ds_coverage_ratio * debt_sale_wo
-
-        # Calculate core values (after removing debt sale portion)
-        # Core provision = current month total provision - provision allocated to sold loans
-        core_provision = total_provision_balance - ds_provision_for_pool
-        core_gbv = closing_gbv  # GBV after debt sale writeoffs already removed
-
-        # Calculate core coverage ratio (provision on remaining "core" loans)
-        core_coverage_ratio = safe_divide(core_provision, core_gbv, default=0.0)
-
-        # Calculate DS proceeds
-        ds_proceeds = ds_proceeds_rate * debt_sale_wo
-
-        # Calculate provision movement
+        # Step 2: Calculate provision movement
         total_provision_movement = total_provision_balance - prior_provision
 
-        # Provision release from debt sale (provision that was covering sold loans)
-        ds_provision_release = ds_provision_for_pool
+        # Step 3: Calculate DS provision release (DS Coverage Ratio × DS WriteOffs)
+        ds_provision_release = ds_coverage_ratio * debt_sale_wo
 
-        # Calculate net impairment components
+        # Step 4: Calculate DS proceeds (DS Proceeds Rate × DS WriteOffs)
+        ds_proceeds = ds_proceeds_rate * debt_sale_wo
+
+        # Step 5: Calculate Non-DS provision movement
         non_ds_provision_movement = total_provision_movement + ds_provision_release
+
+        # Step 6: Calculate Gross impairment (excluding debt sales)
         gross_impairment_excl_ds = non_ds_provision_movement + wo_other
+
+        # Step 7: Calculate Debt sale impact
         debt_sale_impact = debt_sale_wo + ds_provision_release + ds_proceeds
+
+        # Step 8: Calculate Net impairment
         net_impairment = gross_impairment_excl_ds + debt_sale_impact
 
         # Calculate closing NBV
-        closing_nbv = closing_gbv - net_impairment
+        closing_nbv = closing_gbv - total_provision_balance  # NBV = GBV - Provision
 
         # Build output row
         output_row = {
@@ -2422,14 +2422,8 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
             'Debt_Sale_WriteOffs': round(debt_sale_wo, 2),
             'Debt_Sale_Coverage_Ratio': round(ds_coverage_ratio, 6),
             'Debt_Sale_Proceeds_Rate': round(ds_proceeds_rate, 6),
-            'DS_Provision_For_Pool': round(ds_provision_for_pool, 2),
             'Debt_Sale_Provision_Release': round(ds_provision_release, 2),
             'Debt_Sale_Proceeds': round(ds_proceeds, 2),
-
-            # Core values (after removing debt sale portion)
-            'Core_Provision': round(core_provision, 2),
-            'Core_GBV': round(core_gbv, 2),
-            'Core_Coverage_Ratio': round(core_coverage_ratio, 6),
 
             # Net impairment components
             'Non_DS_Provision_Movement': round(non_ds_provision_movement, 2),
@@ -2437,7 +2431,7 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
             'Debt_Sale_Impact': round(debt_sale_impact, 2),
             'Net_Impairment': round(net_impairment, 2),
 
-            # NBV
+            # NBV = GBV - Provision
             'ClosingNBV': round(closing_nbv, 2),
         }
 
@@ -2459,6 +2453,89 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
     next_seed = pd.DataFrame(next_seeds)
 
     return step_output, next_seed
+
+
+def calculate_core_coverage_pre_debt_sale(forecast: pd.DataFrame) -> pd.DataFrame:
+    """
+    Back-solve core coverage ratio for months immediately BEFORE debt sale months.
+
+    Per user specification Section 2D:
+    For the month immediately before a debt sale month:
+    - Implied_DS_Provision = (next month's) DS_Coverage_Ratio × (next month's) DS_WriteOffs
+    - Core_Coverage = (Total_Provision - Implied_DS_Provision) / (Total_GBV - next month's DS_WriteOffs)
+
+    This represents the implied coverage on the "core" portfolio (loans you're keeping)
+    versus the "debt sale pool" (loans you'll sell next month at DS_Coverage_Ratio).
+
+    Args:
+        forecast: Complete forecast DataFrame with all months
+
+    Returns:
+        pd.DataFrame: Forecast with Core_Coverage columns added for pre-DS months
+    """
+    if len(forecast) == 0:
+        return forecast
+
+    df = forecast.copy()
+
+    # Initialize core coverage columns
+    df['Is_Pre_Debt_Sale_Month'] = False
+    df['Next_Month_DS_WriteOffs'] = 0.0
+    df['Implied_DS_Provision_In_Balance'] = 0.0
+    df['Core_GBV'] = 0.0
+    df['Core_Provision'] = 0.0
+    df['Core_Coverage_Ratio'] = 0.0
+
+    # Get unique forecast months sorted
+    forecast_months = sorted(df['ForecastMonth'].unique())
+
+    # For each segment × cohort combination
+    for (segment, cohort), group in df.groupby(['Segment', 'Cohort']):
+        group_sorted = group.sort_values('ForecastMonth')
+        indices = group_sorted.index.tolist()
+
+        for i, idx in enumerate(indices):
+            current_month = df.loc[idx, 'ForecastMonth']
+
+            # Check if NEXT month is a debt sale month
+            if i + 1 < len(indices):
+                next_idx = indices[i + 1]
+                next_month = df.loc[next_idx, 'ForecastMonth']
+                next_month_is_ds = df.loc[next_idx, 'Is_Debt_Sale_Month']
+                next_month_ds_writeoffs = df.loc[next_idx, 'Debt_Sale_WriteOffs']
+
+                if next_month_is_ds and next_month_ds_writeoffs > 0:
+                    # This is a month BEFORE a debt sale - calculate core coverage
+                    df.loc[idx, 'Is_Pre_Debt_Sale_Month'] = True
+                    df.loc[idx, 'Next_Month_DS_WriteOffs'] = next_month_ds_writeoffs
+
+                    # Get current month values
+                    total_provision = df.loc[idx, 'Total_Provision_Balance']
+                    total_gbv = df.loc[idx, 'ClosingGBV']
+                    ds_coverage_ratio = Config.DS_COVERAGE_RATIO
+
+                    # Calculate implied DS provision sitting in the balance
+                    implied_ds_provision = ds_coverage_ratio * next_month_ds_writeoffs
+                    df.loc[idx, 'Implied_DS_Provision_In_Balance'] = round(implied_ds_provision, 2)
+
+                    # Calculate core values (back-solved)
+                    core_gbv = total_gbv - next_month_ds_writeoffs
+                    core_provision = total_provision - implied_ds_provision
+
+                    df.loc[idx, 'Core_GBV'] = round(core_gbv, 2)
+                    df.loc[idx, 'Core_Provision'] = round(core_provision, 2)
+
+                    # Back-solve core coverage ratio
+                    if core_gbv > 0:
+                        core_coverage = core_provision / core_gbv
+                        df.loc[idx, 'Core_Coverage_Ratio'] = round(core_coverage, 6)
+
+    # Log summary
+    pre_ds_count = df['Is_Pre_Debt_Sale_Month'].sum()
+    if pre_ds_count > 0:
+        logger.info(f"Calculated core coverage for {pre_ds_count} pre-debt-sale month rows")
+
+    return df
 
 
 def run_forecast(seed: pd.DataFrame, rate_lookup: pd.DataFrame,
@@ -2500,6 +2577,9 @@ def run_forecast(seed: pd.DataFrame, rate_lookup: pd.DataFrame,
 
     forecast = pd.concat(all_outputs, ignore_index=True)
     forecast = forecast.sort_values(['ForecastMonth', 'Segment', 'Cohort', 'MOB']).reset_index(drop=True)
+
+    # Calculate core coverage for months immediately before debt sales (back-solve)
+    forecast = calculate_core_coverage_pre_debt_sale(forecast)
 
     # Apply metric overlays if enabled (adjustments to final output amounts)
     if Config.ENABLE_OVERLAYS:
@@ -2612,13 +2692,16 @@ def generate_impairment_output(forecast: pd.DataFrame) -> pd.DataFrame:
         'Total_Coverage_Ratio', 'Total_Provision_Balance', 'Prior_Provision_Balance',
         'Total_Provision_Movement',
         # Debt Sale metrics
-        'WO_DebtSold', 'Debt_Sale_WriteOffs', 'Debt_Sale_Coverage_Ratio',
-        'DS_Provision_For_Pool', 'Debt_Sale_Provision_Release', 'Debt_Sale_Proceeds',
-        # Core values (after debt sale)
-        'Core_Provision', 'Core_GBV', 'Core_Coverage_Ratio',
+        'Is_Debt_Sale_Month', 'WO_DebtSold', 'Debt_Sale_WriteOffs', 'Debt_Sale_Coverage_Ratio',
+        'Debt_Sale_Provision_Release', 'Debt_Sale_Proceeds',
         # Net impairment components
         'Non_DS_Provision_Movement', 'Gross_Impairment_ExcludingDS',
-        'Debt_Sale_Impact', 'Net_Impairment'
+        'Debt_Sale_Impact', 'Net_Impairment',
+        # NBV
+        'ClosingNBV',
+        # Core values (back-solved for pre-DS months only)
+        'Is_Pre_Debt_Sale_Month', 'Next_Month_DS_WriteOffs', 'Implied_DS_Provision_In_Balance',
+        'Core_GBV', 'Core_Provision', 'Core_Coverage_Ratio'
     ]
 
     impairment = forecast[columns].copy()
@@ -2661,8 +2744,8 @@ def generate_validation_output(forecast: pd.DataFrame) -> Tuple[pd.DataFrame, pd
     # Use tolerance of 1.0 to account for floating point rounding on large numbers
     recon['GBV_Status'] = recon['GBV_Variance'].apply(lambda x: 'PASS' if x < 1.0 else 'FAIL')
 
-    # NBV reconciliation
-    recon['ClosingNBV_Calculated'] = (recon['ClosingGBV'] - recon['Net_Impairment']).round(2)
+    # NBV reconciliation (NBV = GBV - Provision Balance)
+    recon['ClosingNBV_Calculated'] = (recon['ClosingGBV'] - recon['Total_Provision_Balance']).round(2)
     recon['NBV_Variance'] = (recon['ClosingNBV_Calculated'] - recon['ClosingNBV']).abs().round(2)
     recon['NBV_Status'] = recon['NBV_Variance'].apply(lambda x: 'PASS' if x < 1.0 else 'FAIL')
 
