@@ -1,0 +1,2065 @@
+================================================================================
+AUTO-CALIBRATION SYSTEM
+================================================================================
+Fact Raw: Fact_Raw.xlsx
+Methodology: sample_data/Rate_Methodology_v6_Simplified.csv
+Budget: Budget consol file.xlsx
+Max iterations: 10
+Tolerance: 10.0%
+================================================================================
+2026-01-22 18:29:58,496 - INFO - Loading budget from: Budget consol file.xlsx
+2026-01-22 18:29:58,847 - INFO -   Loaded 1364 budget data points
+
+========================================
+ITERATION 1
+========================================
+2026-01-22 18:29:58,848 - INFO - Running forecast model...
+2026-01-22 18:29:58,848 - INFO - ============================================================
+2026-01-22 18:29:58,848 - INFO - Starting Backbook Forecast
+2026-01-22 18:29:58,848 - INFO - ============================================================
+2026-01-22 18:29:58,848 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:29:58,848 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:29:59,850 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:29:59,851 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:29:59,851 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:29:59,906 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:29:59,906 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:29:59,909 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:29:59,921 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:29:59,922 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:29:59,922 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:29:59,922 - INFO - MOB range: 0 to 69
+2026-01-22 18:29:59,922 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:29:59,926 - INFO - Loaded 42 methodology rules
+2026-01-22 18:29:59,929 - INFO - No debt sale schedule loaded
+2026-01-22 18:29:59,929 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:29:59,929 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:29:59,941 - INFO - Seasonal factors calculated:
+2026-01-22 18:29:59,941 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:29:59,941 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:29:59,941 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:29:59,941 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:29:59,941 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:29:59,942 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:29:59,942 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:29:59,942 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:29:59,943 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:29:59,943 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:29:59,943 - INFO - Calculating base curves...
+2026-01-22 18:30:00,079 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:30:00,079 - INFO - Extending curves for 12 months...
+2026-01-22 18:30:00,130 - INFO - Extended curves to 2716 rows
+2026-01-22 18:30:00,131 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:30:00,131 - INFO - Calculating impairment actuals...
+2026-01-22 18:30:00,170 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:30:00,170 - INFO - Calculating impairment curves...
+2026-01-22 18:30:00,187 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:30:00,187 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:30:00,187 - INFO - Generating seed curves...
+2026-01-22 18:30:00,187 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:30:00,191 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:30:00,191 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:30:00,191 - INFO - Building rate lookup...
+2026-01-22 18:30:22,255 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:30:22,256 - INFO - Building impairment lookup...
+2026-01-22 18:30:24,689 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:30:24,690 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:30:24,690 - INFO - Running forecast for 12 months...
+2026-01-22 18:30:24,690 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:30:24,815 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:30:24,945 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:30:25,070 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:30:25,199 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:30:25,325 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:30:25,453 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:30:25,581 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:30:25,708 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:30:25,840 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:30:25,975 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:30:26,100 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:30:26,462 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:30:26,462 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:30:26,463 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:30:26,463 - INFO - Generating summary output...
+2026-01-22 18:30:26,469 - INFO - Generated summary with 60 rows
+2026-01-22 18:30:26,469 - INFO - Generating details output...
+2026-01-22 18:30:26,474 - INFO - Generated details with 1140 rows
+2026-01-22 18:30:26,474 - INFO - Generating impairment output...
+2026-01-22 18:30:26,478 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:30:26,478 - INFO - Generating validation output...
+2026-01-22 18:30:26,490 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:30:26,490 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:30:26,490 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:30:26,519 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:30:27,533 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:30:28,088 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:30:28,370 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:30:28,371 - INFO - Excel export complete
+2026-01-22 18:30:28,371 - INFO - 
+============================================================
+2026-01-22 18:30:28,371 - INFO - Forecast complete in 29.52 seconds
+2026-01-22 18:30:28,371 - INFO - Output saved to: calibration_output
+2026-01-22 18:30:28,371 - INFO - ============================================================
+2026-01-22 18:30:28,372 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:30:28,372 - INFO -   Total checks: 5700
+2026-01-22 18:30:28,372 - INFO -   Passed: 5681
+2026-01-22 18:30:28,372 - INFO -   Failed: 19
+2026-01-22 18:30:28,619 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:30:28,636 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:30:28,650 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:30:28,650 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:30:28,651 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:30:28,651 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:30:28,652 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,652 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,653 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,653 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,653 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,654 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,654 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,654 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:30:28,655 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:30:28,655 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:30:28,655 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:30:28,656 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:30:28,656 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:30:28,657 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,657 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,657 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,657 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,658 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,658 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,658 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,658 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:30:28,659 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:30:28,659 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:30:28,660 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,660 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:28,660 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,660 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,661 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,661 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:28,662 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,662 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,662 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,662 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,663 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,663 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,663 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,663 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,664 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,664 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:28,665 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:28,665 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:30:28,665 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,665 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:28,666 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,666 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,666 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,666 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:28,667 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,667 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,667 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,667 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,667 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,668 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,668 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,668 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:28,668 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,669 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:28,669 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:28,670 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:30:28,670 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:30:28,670 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:30:28,671 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,671 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:28,671 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:28,671 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:28,671 - INFO - Adding scaling override rules...
+2026-01-22 18:30:28,672 - INFO -   Added ScaledCohortAvg rule: PRIME/Total_Coverage_Ratio scale=0.5112
+2026-01-22 18:30:28,673 - INFO -   Added ScaledCohortAvg rule: PRIME/Total_Coverage_Ratio scale=0.5117
+2026-01-22 18:30:28,673 - INFO -   Added ScaledCohortAvg rule: NRP-M/Total_Coverage_Ratio scale=0.5000
+2026-01-22 18:30:28,674 - INFO -   Added ScaledCohortAvg rule: NRP-L/Total_Coverage_Ratio scale=0.5000
+2026-01-22 18:30:28,674 - INFO -   Added ScaledCohortAvg rule: NRP-M/Total_Coverage_Ratio scale=0.5000
+2026-01-22 18:30:28,675 - INFO -   Added ScaledCohortAvg rule: NRP-L/Total_Coverage_Ratio scale=0.5000
+2026-01-22 18:30:28,675 - INFO -   Added ScaledCohortAvg rule: NRP-S/Total_Coverage_Ratio scale=0.5000
+2026-01-22 18:30:28,679 - INFO -   Backup saved to: sample_data/Rate_Methodology_v6_Simplified_backup_20260122_183028.csv
+2026-01-22 18:30:28,682 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 2
+
+========================================
+ITERATION 2
+========================================
+2026-01-22 18:30:28,682 - INFO - Running forecast model...
+2026-01-22 18:30:28,682 - INFO - ============================================================
+2026-01-22 18:30:28,682 - INFO - Starting Backbook Forecast
+2026-01-22 18:30:28,682 - INFO - ============================================================
+2026-01-22 18:30:28,682 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:30:28,682 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:30:29,597 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:30:29,597 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:30:29,597 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:30:29,645 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:30:29,645 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:30:29,649 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:30:29,654 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:30:29,654 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:30:29,655 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:30:29,655 - INFO - MOB range: 0 to 69
+2026-01-22 18:30:29,655 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:30:29,657 - INFO - Loaded 49 methodology rules
+2026-01-22 18:30:29,661 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:30:29,661 - INFO - No debt sale schedule loaded
+2026-01-22 18:30:29,661 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:30:29,661 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:30:29,672 - INFO - Seasonal factors calculated:
+2026-01-22 18:30:29,672 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:30:29,672 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:30:29,672 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:30:29,672 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:30:29,673 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:30:29,673 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:30:29,673 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:30:29,673 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:30:29,675 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:30:29,675 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:30:29,675 - INFO - Calculating base curves...
+2026-01-22 18:30:29,808 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:30:29,808 - INFO - Extending curves for 12 months...
+2026-01-22 18:30:29,862 - INFO - Extended curves to 2716 rows
+2026-01-22 18:30:29,862 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:30:29,862 - INFO - Calculating impairment actuals...
+2026-01-22 18:30:29,900 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:30:29,900 - INFO - Calculating impairment curves...
+2026-01-22 18:30:29,916 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:30:29,916 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:30:29,916 - INFO - Generating seed curves...
+2026-01-22 18:30:29,916 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:30:29,920 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:30:29,920 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:30:29,920 - INFO - Building rate lookup...
+2026-01-22 18:30:52,142 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:30:52,143 - INFO - Building impairment lookup...
+2026-01-22 18:30:54,493 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:30:54,493 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:30:54,493 - INFO - Running forecast for 12 months...
+2026-01-22 18:30:54,494 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:30:54,635 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:30:54,768 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:30:54,899 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:30:55,042 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:30:55,182 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:30:55,326 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:30:55,460 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:30:55,599 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:30:55,742 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:30:55,880 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:30:56,020 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:30:56,433 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:30:56,433 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:30:56,433 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:30:56,434 - INFO - Generating summary output...
+2026-01-22 18:30:56,442 - INFO - Generated summary with 60 rows
+2026-01-22 18:30:56,443 - INFO - Generating details output...
+2026-01-22 18:30:56,447 - INFO - Generated details with 1140 rows
+2026-01-22 18:30:56,448 - INFO - Generating impairment output...
+2026-01-22 18:30:56,452 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:30:56,452 - INFO - Generating validation output...
+2026-01-22 18:30:56,462 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:30:56,462 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:30:56,462 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:30:56,482 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:30:57,467 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:30:58,018 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:30:58,302 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:30:58,302 - INFO - Excel export complete
+2026-01-22 18:30:58,302 - INFO - 
+============================================================
+2026-01-22 18:30:58,302 - INFO - Forecast complete in 29.62 seconds
+2026-01-22 18:30:58,302 - INFO - Output saved to: calibration_output
+2026-01-22 18:30:58,302 - INFO - ============================================================
+2026-01-22 18:30:58,303 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:30:58,303 - INFO -   Total checks: 5700
+2026-01-22 18:30:58,303 - INFO -   Passed: 5681
+2026-01-22 18:30:58,303 - INFO -   Failed: 19
+2026-01-22 18:30:58,549 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:30:58,565 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:30:58,578 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:30:58,578 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:30:58,579 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:30:58,579 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:30:58,579 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,580 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,580 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,580 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,581 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,581 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,581 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,581 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:30:58,582 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:30:58,583 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:30:58,583 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:30:58,584 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:30:58,584 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:30:58,584 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,584 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,585 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,585 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,586 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,586 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,586 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,586 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:30:58,587 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:30:58,587 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:30:58,588 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,588 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:58,588 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,588 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,589 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,589 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:58,589 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,590 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,590 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,590 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,591 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,591 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,591 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,591 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,591 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,592 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:58,592 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:58,593 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:30:58,593 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,593 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:58,594 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,594 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,594 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,595 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:58,595 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,595 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,595 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,596 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,596 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,596 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,596 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,597 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:30:58,597 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,597 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:58,598 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:58,599 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:30:58,599 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:30:58,600 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:30:58,600 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,600 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:30:58,600 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:30:58,601 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:30:58,601 - INFO - Adding scaling override rules...
+2026-01-22 18:30:58,602 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.5112 -> 0.2613
+2026-01-22 18:30:58,602 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.5117 -> 0.2616
+2026-01-22 18:30:58,603 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.2613 -> 0.1337
+2026-01-22 18:30:58,604 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.2616 -> 0.1339
+2026-01-22 18:30:58,605 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.5000 -> 0.2500
+2026-01-22 18:30:58,605 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.5000 -> 0.2500
+2026-01-22 18:30:58,606 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.5000 -> 0.2500
+2026-01-22 18:30:58,606 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.5000 -> 0.2500
+2026-01-22 18:30:58,607 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.2500 -> 0.1250
+2026-01-22 18:30:58,607 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.2500 -> 0.1250
+2026-01-22 18:30:58,608 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.2500 -> 0.1250
+2026-01-22 18:30:58,608 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.2500 -> 0.1250
+2026-01-22 18:30:58,609 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.5000 -> 0.2500
+2026-01-22 18:30:58,610 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 3
+
+========================================
+ITERATION 3
+========================================
+2026-01-22 18:30:58,610 - INFO - Running forecast model...
+2026-01-22 18:30:58,611 - INFO - ============================================================
+2026-01-22 18:30:58,611 - INFO - Starting Backbook Forecast
+2026-01-22 18:30:58,611 - INFO - ============================================================
+2026-01-22 18:30:58,611 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:30:58,611 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:30:59,557 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:30:59,558 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:30:59,558 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:30:59,609 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:30:59,610 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:30:59,612 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:30:59,619 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:30:59,619 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:30:59,620 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:30:59,620 - INFO - MOB range: 0 to 69
+2026-01-22 18:30:59,620 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:30:59,622 - INFO - Loaded 49 methodology rules
+2026-01-22 18:30:59,625 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:30:59,625 - INFO - No debt sale schedule loaded
+2026-01-22 18:30:59,625 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:30:59,625 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:30:59,639 - INFO - Seasonal factors calculated:
+2026-01-22 18:30:59,640 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:30:59,640 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:30:59,640 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:30:59,640 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:30:59,640 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:30:59,640 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:30:59,640 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:30:59,640 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:30:59,642 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:30:59,642 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:30:59,642 - INFO - Calculating base curves...
+2026-01-22 18:30:59,774 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:30:59,774 - INFO - Extending curves for 12 months...
+2026-01-22 18:30:59,824 - INFO - Extended curves to 2716 rows
+2026-01-22 18:30:59,824 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:30:59,824 - INFO - Calculating impairment actuals...
+2026-01-22 18:30:59,864 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:30:59,864 - INFO - Calculating impairment curves...
+2026-01-22 18:30:59,879 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:30:59,879 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:30:59,879 - INFO - Generating seed curves...
+2026-01-22 18:30:59,880 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:30:59,883 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:30:59,883 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:30:59,883 - INFO - Building rate lookup...
+2026-01-22 18:31:21,923 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:31:21,924 - INFO - Building impairment lookup...
+2026-01-22 18:31:24,345 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:31:24,345 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:31:24,345 - INFO - Running forecast for 12 months...
+2026-01-22 18:31:24,345 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:31:24,472 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:31:24,600 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:31:24,745 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:31:24,881 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:31:25,016 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:31:25,159 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:31:25,298 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:31:25,436 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:31:25,577 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:31:25,715 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:31:25,852 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:31:26,241 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:31:26,241 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:31:26,242 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:31:26,242 - INFO - Generating summary output...
+2026-01-22 18:31:26,249 - INFO - Generated summary with 60 rows
+2026-01-22 18:31:26,249 - INFO - Generating details output...
+2026-01-22 18:31:26,253 - INFO - Generated details with 1140 rows
+2026-01-22 18:31:26,253 - INFO - Generating impairment output...
+2026-01-22 18:31:26,257 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:31:26,257 - INFO - Generating validation output...
+2026-01-22 18:31:26,267 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:31:26,268 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:31:26,268 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:31:26,288 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:31:27,289 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:31:27,816 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:31:28,116 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:31:28,116 - INFO - Excel export complete
+2026-01-22 18:31:28,116 - INFO - 
+============================================================
+2026-01-22 18:31:28,116 - INFO - Forecast complete in 29.51 seconds
+2026-01-22 18:31:28,117 - INFO - Output saved to: calibration_output
+2026-01-22 18:31:28,117 - INFO - ============================================================
+2026-01-22 18:31:28,117 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:31:28,117 - INFO -   Total checks: 5700
+2026-01-22 18:31:28,118 - INFO -   Passed: 5681
+2026-01-22 18:31:28,118 - INFO -   Failed: 19
+2026-01-22 18:31:28,369 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:31:28,383 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:31:28,395 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:31:28,396 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:31:28,396 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:31:28,396 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:31:28,397 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,397 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,397 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,398 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,398 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,398 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,398 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,398 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:31:28,399 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:31:28,399 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:31:28,400 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:31:28,400 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:31:28,400 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:31:28,400 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,401 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,401 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,401 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,401 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,402 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,402 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,402 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:31:28,402 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:31:28,403 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:31:28,403 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,403 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:28,403 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,404 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,404 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,404 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:28,404 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,405 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,405 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,405 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,405 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,406 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,406 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,406 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,406 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,407 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:28,407 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:28,407 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:31:28,408 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,408 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:28,408 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,408 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,409 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,409 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:28,409 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,410 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,410 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,410 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,411 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,411 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,411 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,411 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:28,411 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,412 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:28,412 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:28,413 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:31:28,413 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:31:28,414 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:31:28,414 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,414 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:28,414 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:28,415 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:28,415 - INFO - Adding scaling override rules...
+2026-01-22 18:31:28,416 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.1337 -> 0.0684
+2026-01-22 18:31:28,416 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.1339 -> 0.0685
+2026-01-22 18:31:28,417 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0684 -> 0.0350
+2026-01-22 18:31:28,417 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0685 -> 0.0351
+2026-01-22 18:31:28,418 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.1250 -> 0.0625
+2026-01-22 18:31:28,418 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.1250 -> 0.0625
+2026-01-22 18:31:28,419 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.1250 -> 0.0625
+2026-01-22 18:31:28,419 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.1250 -> 0.0625
+2026-01-22 18:31:28,420 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0625 -> 0.0312
+2026-01-22 18:31:28,420 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0625 -> 0.0312
+2026-01-22 18:31:28,421 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0625 -> 0.0312
+2026-01-22 18:31:28,421 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0625 -> 0.0312
+2026-01-22 18:31:28,422 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.2500 -> 0.1250
+2026-01-22 18:31:28,423 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 4
+
+========================================
+ITERATION 4
+========================================
+2026-01-22 18:31:28,424 - INFO - Running forecast model...
+2026-01-22 18:31:28,424 - INFO - ============================================================
+2026-01-22 18:31:28,424 - INFO - Starting Backbook Forecast
+2026-01-22 18:31:28,424 - INFO - ============================================================
+2026-01-22 18:31:28,424 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:31:28,424 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:31:29,367 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:31:29,368 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:31:29,368 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:31:29,414 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:31:29,415 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:31:29,418 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:31:29,423 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:31:29,424 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:31:29,424 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:31:29,424 - INFO - MOB range: 0 to 69
+2026-01-22 18:31:29,424 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:31:29,426 - INFO - Loaded 49 methodology rules
+2026-01-22 18:31:29,429 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:31:29,429 - INFO - No debt sale schedule loaded
+2026-01-22 18:31:29,429 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:31:29,429 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:31:29,438 - INFO - Seasonal factors calculated:
+2026-01-22 18:31:29,439 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:31:29,439 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:31:29,439 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:31:29,439 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:31:29,439 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:31:29,439 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:31:29,439 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:31:29,439 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:31:29,440 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:31:29,440 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:31:29,441 - INFO - Calculating base curves...
+2026-01-22 18:31:29,576 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:31:29,576 - INFO - Extending curves for 12 months...
+2026-01-22 18:31:29,634 - INFO - Extended curves to 2716 rows
+2026-01-22 18:31:29,635 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:31:29,635 - INFO - Calculating impairment actuals...
+2026-01-22 18:31:29,678 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:31:29,678 - INFO - Calculating impairment curves...
+2026-01-22 18:31:29,703 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:31:29,703 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:31:29,704 - INFO - Generating seed curves...
+2026-01-22 18:31:29,704 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:31:29,709 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:31:29,709 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:31:29,710 - INFO - Building rate lookup...
+2026-01-22 18:31:51,937 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:31:51,938 - INFO - Building impairment lookup...
+2026-01-22 18:31:54,415 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:31:54,415 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:31:54,415 - INFO - Running forecast for 12 months...
+2026-01-22 18:31:54,416 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:31:54,552 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:31:54,692 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:31:54,834 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:31:54,983 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:31:55,117 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:31:55,260 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:31:55,392 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:31:55,528 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:31:55,677 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:31:55,819 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:31:55,965 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:31:56,360 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:31:56,360 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:31:56,360 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:31:56,360 - INFO - Generating summary output...
+2026-01-22 18:31:56,367 - INFO - Generated summary with 60 rows
+2026-01-22 18:31:56,367 - INFO - Generating details output...
+2026-01-22 18:31:56,372 - INFO - Generated details with 1140 rows
+2026-01-22 18:31:56,372 - INFO - Generating impairment output...
+2026-01-22 18:31:56,375 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:31:56,376 - INFO - Generating validation output...
+2026-01-22 18:31:56,386 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:31:56,386 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:31:56,386 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:31:56,405 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:31:57,369 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:31:57,924 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:31:58,207 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:31:58,207 - INFO - Excel export complete
+2026-01-22 18:31:58,207 - INFO - 
+============================================================
+2026-01-22 18:31:58,207 - INFO - Forecast complete in 29.78 seconds
+2026-01-22 18:31:58,208 - INFO - Output saved to: calibration_output
+2026-01-22 18:31:58,208 - INFO - ============================================================
+2026-01-22 18:31:58,208 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:31:58,208 - INFO -   Total checks: 5700
+2026-01-22 18:31:58,208 - INFO -   Passed: 5681
+2026-01-22 18:31:58,208 - INFO -   Failed: 19
+2026-01-22 18:31:58,450 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:31:58,465 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:31:58,478 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:31:58,478 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:31:58,479 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:31:58,479 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:31:58,479 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,479 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,479 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,480 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,480 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,480 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,480 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,481 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:31:58,481 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:31:58,482 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:31:58,482 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:31:58,482 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:31:58,482 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:31:58,482 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,483 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,483 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,483 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,483 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,484 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,484 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,484 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:31:58,485 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:31:58,485 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:31:58,486 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,486 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:58,486 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,486 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,487 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,487 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:58,487 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,487 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,488 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,488 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,488 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,489 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,489 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,489 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,489 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,490 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:58,490 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:58,490 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:31:58,491 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,491 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:58,491 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,491 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,492 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,492 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:58,492 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,493 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,493 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,494 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,494 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,494 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,494 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,495 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:31:58,495 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,496 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:58,496 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:58,497 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:31:58,497 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:31:58,498 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:31:58,498 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,498 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:31:58,498 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:31:58,499 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:31:58,499 - INFO - Adding scaling override rules...
+2026-01-22 18:31:58,500 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0350 -> 0.0179
+2026-01-22 18:31:58,500 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0351 -> 0.0179
+2026-01-22 18:31:58,501 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0179 -> 0.0092
+2026-01-22 18:31:58,501 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0179 -> 0.0092
+2026-01-22 18:31:58,502 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0312 -> 0.0156
+2026-01-22 18:31:58,502 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0312 -> 0.0156
+2026-01-22 18:31:58,503 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0312 -> 0.0156
+2026-01-22 18:31:58,503 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0312 -> 0.0156
+2026-01-22 18:31:58,504 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0156 -> 0.0078
+2026-01-22 18:31:58,504 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0156 -> 0.0078
+2026-01-22 18:31:58,505 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0156 -> 0.0078
+2026-01-22 18:31:58,505 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0156 -> 0.0078
+2026-01-22 18:31:58,506 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.1250 -> 0.0625
+2026-01-22 18:31:58,507 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 5
+
+========================================
+ITERATION 5
+========================================
+2026-01-22 18:31:58,507 - INFO - Running forecast model...
+2026-01-22 18:31:58,507 - INFO - ============================================================
+2026-01-22 18:31:58,507 - INFO - Starting Backbook Forecast
+2026-01-22 18:31:58,507 - INFO - ============================================================
+2026-01-22 18:31:58,507 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:31:58,507 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:31:59,438 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:31:59,439 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:31:59,439 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:31:59,488 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:31:59,488 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:31:59,491 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:31:59,498 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:31:59,498 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:31:59,499 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:31:59,499 - INFO - MOB range: 0 to 69
+2026-01-22 18:31:59,499 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:31:59,501 - INFO - Loaded 49 methodology rules
+2026-01-22 18:31:59,504 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:31:59,504 - INFO - No debt sale schedule loaded
+2026-01-22 18:31:59,504 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:31:59,504 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:31:59,515 - INFO - Seasonal factors calculated:
+2026-01-22 18:31:59,515 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:31:59,516 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:31:59,516 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:31:59,516 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:31:59,516 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:31:59,516 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:31:59,516 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:31:59,516 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:31:59,518 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:31:59,518 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:31:59,518 - INFO - Calculating base curves...
+2026-01-22 18:31:59,653 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:31:59,653 - INFO - Extending curves for 12 months...
+2026-01-22 18:31:59,710 - INFO - Extended curves to 2716 rows
+2026-01-22 18:31:59,710 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:31:59,710 - INFO - Calculating impairment actuals...
+2026-01-22 18:31:59,753 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:31:59,753 - INFO - Calculating impairment curves...
+2026-01-22 18:31:59,767 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:31:59,768 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:31:59,768 - INFO - Generating seed curves...
+2026-01-22 18:31:59,768 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:31:59,772 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:31:59,772 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:31:59,772 - INFO - Building rate lookup...
+2026-01-22 18:32:22,171 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:32:22,171 - INFO - Building impairment lookup...
+2026-01-22 18:32:24,684 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:32:24,684 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:32:24,684 - INFO - Running forecast for 12 months...
+2026-01-22 18:32:24,684 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:32:24,835 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:32:24,973 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:32:25,118 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:32:25,256 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:32:25,424 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:32:25,565 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:32:25,720 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:32:25,869 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:32:26,007 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:32:26,166 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:32:26,305 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:32:26,723 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:32:26,725 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:32:26,726 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:32:26,726 - INFO - Generating summary output...
+2026-01-22 18:32:26,733 - INFO - Generated summary with 60 rows
+2026-01-22 18:32:26,734 - INFO - Generating details output...
+2026-01-22 18:32:26,739 - INFO - Generated details with 1140 rows
+2026-01-22 18:32:26,739 - INFO - Generating impairment output...
+2026-01-22 18:32:26,743 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:32:26,743 - INFO - Generating validation output...
+2026-01-22 18:32:26,754 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:32:26,754 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:32:26,754 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:32:26,777 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:32:27,863 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:32:28,416 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:32:28,710 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:32:28,710 - INFO - Excel export complete
+2026-01-22 18:32:28,710 - INFO - 
+============================================================
+2026-01-22 18:32:28,710 - INFO - Forecast complete in 30.20 seconds
+2026-01-22 18:32:28,711 - INFO - Output saved to: calibration_output
+2026-01-22 18:32:28,711 - INFO - ============================================================
+2026-01-22 18:32:28,711 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:32:28,711 - INFO -   Total checks: 5700
+2026-01-22 18:32:28,711 - INFO -   Passed: 5681
+2026-01-22 18:32:28,711 - INFO -   Failed: 19
+2026-01-22 18:32:28,961 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:32:28,978 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:32:28,990 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:32:28,990 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:32:28,991 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:32:28,991 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:32:28,992 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,992 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,992 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,992 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,993 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,993 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,994 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,994 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:32:28,994 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:32:28,995 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:32:28,995 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:32:28,996 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:32:28,996 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:32:28,996 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,996 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,997 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,997 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,997 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,997 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,998 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:28,998 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:32:28,998 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:32:28,999 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:32:28,999 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:28,999 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:29,000 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,000 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,001 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,001 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:29,001 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,002 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,002 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,002 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,003 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,003 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,003 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,003 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,003 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,004 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:29,005 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:29,005 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:32:29,005 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,005 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:29,006 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,006 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,006 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,007 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:29,007 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,007 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,008 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,008 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,008 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,009 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,009 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,009 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:29,009 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,010 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:29,011 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:29,011 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:32:29,012 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:32:29,012 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:32:29,012 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,012 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:29,012 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:29,013 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:29,013 - INFO - Adding scaling override rules...
+2026-01-22 18:32:29,014 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0092 -> 0.0047
+2026-01-22 18:32:29,015 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0092 -> 0.0047
+2026-01-22 18:32:29,016 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0047 -> 0.0024
+2026-01-22 18:32:29,016 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0047 -> 0.0024
+2026-01-22 18:32:29,017 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0078 -> 0.0039
+2026-01-22 18:32:29,017 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0078 -> 0.0039
+2026-01-22 18:32:29,018 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0078 -> 0.0039
+2026-01-22 18:32:29,018 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0078 -> 0.0039
+2026-01-22 18:32:29,019 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0039 -> 0.0019
+2026-01-22 18:32:29,020 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0039 -> 0.0019
+2026-01-22 18:32:29,020 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0039 -> 0.0019
+2026-01-22 18:32:29,021 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0039 -> 0.0019
+2026-01-22 18:32:29,022 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.0625 -> 0.0312
+2026-01-22 18:32:29,023 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 6
+
+========================================
+ITERATION 6
+========================================
+2026-01-22 18:32:29,023 - INFO - Running forecast model...
+2026-01-22 18:32:29,023 - INFO - ============================================================
+2026-01-22 18:32:29,024 - INFO - Starting Backbook Forecast
+2026-01-22 18:32:29,024 - INFO - ============================================================
+2026-01-22 18:32:29,024 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:32:29,024 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:32:30,030 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:32:30,030 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:32:30,031 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:32:30,076 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:32:30,077 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:32:30,079 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:32:30,085 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:32:30,085 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:32:30,086 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:32:30,086 - INFO - MOB range: 0 to 69
+2026-01-22 18:32:30,086 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:32:30,088 - INFO - Loaded 49 methodology rules
+2026-01-22 18:32:30,091 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:32:30,091 - INFO - No debt sale schedule loaded
+2026-01-22 18:32:30,091 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:32:30,091 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:32:30,103 - INFO - Seasonal factors calculated:
+2026-01-22 18:32:30,103 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:32:30,103 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:32:30,103 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:32:30,103 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:32:30,103 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:32:30,103 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:32:30,104 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:32:30,104 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:32:30,105 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:32:30,105 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:32:30,105 - INFO - Calculating base curves...
+2026-01-22 18:32:30,244 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:32:30,245 - INFO - Extending curves for 12 months...
+2026-01-22 18:32:30,296 - INFO - Extended curves to 2716 rows
+2026-01-22 18:32:30,297 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:32:30,297 - INFO - Calculating impairment actuals...
+2026-01-22 18:32:30,337 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:32:30,337 - INFO - Calculating impairment curves...
+2026-01-22 18:32:30,353 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:32:30,353 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:32:30,353 - INFO - Generating seed curves...
+2026-01-22 18:32:30,353 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:32:30,356 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:32:30,356 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:32:30,356 - INFO - Building rate lookup...
+2026-01-22 18:32:52,483 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:32:52,484 - INFO - Building impairment lookup...
+2026-01-22 18:32:54,913 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:32:54,914 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:32:54,914 - INFO - Running forecast for 12 months...
+2026-01-22 18:32:54,914 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:32:55,039 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:32:55,177 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:32:55,326 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:32:55,464 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:32:55,603 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:32:55,746 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:32:55,886 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:32:56,029 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:32:56,170 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:32:56,316 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:32:56,472 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:32:56,880 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:32:56,881 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:32:56,881 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:32:56,881 - INFO - Generating summary output...
+2026-01-22 18:32:56,888 - INFO - Generated summary with 60 rows
+2026-01-22 18:32:56,888 - INFO - Generating details output...
+2026-01-22 18:32:56,893 - INFO - Generated details with 1140 rows
+2026-01-22 18:32:56,894 - INFO - Generating impairment output...
+2026-01-22 18:32:56,898 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:32:56,898 - INFO - Generating validation output...
+2026-01-22 18:32:56,908 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:32:56,908 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:32:56,908 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:32:56,926 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:32:57,929 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:32:58,524 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:32:58,834 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:32:58,834 - INFO - Excel export complete
+2026-01-22 18:32:58,834 - INFO - 
+============================================================
+2026-01-22 18:32:58,834 - INFO - Forecast complete in 29.81 seconds
+2026-01-22 18:32:58,834 - INFO - Output saved to: calibration_output
+2026-01-22 18:32:58,834 - INFO - ============================================================
+2026-01-22 18:32:58,835 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:32:58,835 - INFO -   Total checks: 5700
+2026-01-22 18:32:58,835 - INFO -   Passed: 5681
+2026-01-22 18:32:58,835 - INFO -   Failed: 19
+2026-01-22 18:32:59,110 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:32:59,127 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:32:59,141 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:32:59,142 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:32:59,143 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:32:59,143 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:32:59,144 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,144 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,144 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,145 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,145 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,146 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,146 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,147 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:32:59,148 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:32:59,149 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:32:59,149 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:32:59,149 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:32:59,149 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:32:59,150 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,150 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,150 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,151 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,151 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,151 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,151 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,152 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:32:59,152 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:32:59,152 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:32:59,153 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,153 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:59,154 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,154 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,155 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,155 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:59,156 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,156 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,157 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,157 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,158 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,158 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,159 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,160 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,160 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,161 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:59,162 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:59,162 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:32:59,163 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,163 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:59,164 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,164 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,165 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,165 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:59,166 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,166 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,167 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,167 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,168 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,168 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,168 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,169 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:32:59,169 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,170 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:59,171 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:59,171 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:32:59,172 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:32:59,172 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:32:59,172 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,172 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:32:59,172 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:32:59,173 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:32:59,173 - INFO - Adding scaling override rules...
+2026-01-22 18:32:59,175 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0024 -> 0.0012
+2026-01-22 18:32:59,175 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0024 -> 0.0012
+2026-01-22 18:32:59,176 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0012 -> 0.0006
+2026-01-22 18:32:59,177 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0012 -> 0.0006
+2026-01-22 18:32:59,179 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0019 -> 0.0009
+2026-01-22 18:32:59,179 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0019 -> 0.0009
+2026-01-22 18:32:59,180 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0019 -> 0.0009
+2026-01-22 18:32:59,180 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0019 -> 0.0009
+2026-01-22 18:32:59,181 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0009 -> 0.0004
+2026-01-22 18:32:59,182 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0009 -> 0.0004
+2026-01-22 18:32:59,183 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0009 -> 0.0004
+2026-01-22 18:32:59,183 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0009 -> 0.0004
+2026-01-22 18:32:59,184 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.0312 -> 0.0156
+2026-01-22 18:32:59,186 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 7
+
+========================================
+ITERATION 7
+========================================
+2026-01-22 18:32:59,186 - INFO - Running forecast model...
+2026-01-22 18:32:59,186 - INFO - ============================================================
+2026-01-22 18:32:59,187 - INFO - Starting Backbook Forecast
+2026-01-22 18:32:59,187 - INFO - ============================================================
+2026-01-22 18:32:59,187 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:32:59,187 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:33:00,345 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:33:00,346 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:33:00,346 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:33:00,400 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:33:00,400 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:33:00,404 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:33:00,411 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:33:00,412 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:33:00,412 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:33:00,412 - INFO - MOB range: 0 to 69
+2026-01-22 18:33:00,413 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:33:00,415 - INFO - Loaded 49 methodology rules
+2026-01-22 18:33:00,418 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:33:00,418 - INFO - No debt sale schedule loaded
+2026-01-22 18:33:00,418 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:33:00,418 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:33:00,429 - INFO - Seasonal factors calculated:
+2026-01-22 18:33:00,429 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:33:00,430 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:33:00,430 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:33:00,430 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:33:00,430 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:33:00,430 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:33:00,430 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:33:00,430 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:33:00,432 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:33:00,432 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:33:00,433 - INFO - Calculating base curves...
+2026-01-22 18:33:00,573 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:33:00,573 - INFO - Extending curves for 12 months...
+2026-01-22 18:33:00,627 - INFO - Extended curves to 2716 rows
+2026-01-22 18:33:00,628 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:33:00,628 - INFO - Calculating impairment actuals...
+2026-01-22 18:33:00,671 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:33:00,671 - INFO - Calculating impairment curves...
+2026-01-22 18:33:00,688 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:33:00,688 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:33:00,689 - INFO - Generating seed curves...
+2026-01-22 18:33:00,689 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:33:00,693 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:33:00,693 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:33:00,694 - INFO - Building rate lookup...
+2026-01-22 18:33:23,103 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:33:23,104 - INFO - Building impairment lookup...
+2026-01-22 18:33:25,554 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:33:25,555 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:33:25,555 - INFO - Running forecast for 12 months...
+2026-01-22 18:33:25,555 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:33:25,693 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:33:25,825 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:33:25,954 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:33:26,090 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:33:26,219 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:33:26,361 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:33:26,494 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:33:26,623 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:33:26,748 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:33:26,874 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:33:26,998 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:33:27,386 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:33:27,386 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:33:27,386 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:33:27,387 - INFO - Generating summary output...
+2026-01-22 18:33:27,393 - INFO - Generated summary with 60 rows
+2026-01-22 18:33:27,393 - INFO - Generating details output...
+2026-01-22 18:33:27,397 - INFO - Generated details with 1140 rows
+2026-01-22 18:33:27,397 - INFO - Generating impairment output...
+2026-01-22 18:33:27,400 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:33:27,400 - INFO - Generating validation output...
+2026-01-22 18:33:27,410 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:33:27,410 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:33:27,410 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:33:27,432 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:33:28,491 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:33:29,087 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:33:29,429 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:33:29,430 - INFO - Excel export complete
+2026-01-22 18:33:29,430 - INFO - 
+============================================================
+2026-01-22 18:33:29,430 - INFO - Forecast complete in 30.24 seconds
+2026-01-22 18:33:29,430 - INFO - Output saved to: calibration_output
+2026-01-22 18:33:29,430 - INFO - ============================================================
+2026-01-22 18:33:29,431 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:33:29,431 - INFO -   Total checks: 5700
+2026-01-22 18:33:29,431 - INFO -   Passed: 5681
+2026-01-22 18:33:29,431 - INFO -   Failed: 19
+2026-01-22 18:33:29,708 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:33:29,725 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:33:29,739 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:33:29,739 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:33:29,740 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:33:29,740 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:33:29,741 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,741 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,742 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,742 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,743 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,743 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,744 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,744 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:33:29,745 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:33:29,746 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:33:29,747 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:33:29,747 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:33:29,748 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:33:29,748 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,749 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,749 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,749 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,750 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,750 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,750 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,751 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:33:29,752 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:33:29,752 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:33:29,752 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,753 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:33:29,753 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,753 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,754 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,754 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:33:29,755 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,755 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,756 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,756 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,757 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,758 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,759 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,759 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,759 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,760 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:33:29,761 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:33:29,761 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:33:29,761 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,762 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:33:29,762 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,762 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,763 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,763 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:33:29,763 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,763 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,764 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,764 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,765 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,767 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,768 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,768 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:33:29,768 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,769 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:33:29,770 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:33:29,770 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:33:29,771 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:33:29,771 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:33:29,771 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,771 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:33:29,772 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:33:29,772 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:33:29,772 - INFO - Adding scaling override rules...
+2026-01-22 18:33:29,773 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0006 -> 0.0003
+2026-01-22 18:33:29,774 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0006 -> 0.0003
+2026-01-22 18:33:29,776 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0003 -> 0.0002
+2026-01-22 18:33:29,777 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0003 -> 0.0002
+2026-01-22 18:33:29,779 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0004 -> 0.0002
+2026-01-22 18:33:29,780 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0004 -> 0.0002
+2026-01-22 18:33:29,781 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0004 -> 0.0002
+2026-01-22 18:33:29,782 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0004 -> 0.0002
+2026-01-22 18:33:29,784 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0002 -> 0.0001
+2026-01-22 18:33:29,784 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0002 -> 0.0001
+2026-01-22 18:33:29,785 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0002 -> 0.0001
+2026-01-22 18:33:29,786 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0002 -> 0.0001
+2026-01-22 18:33:29,787 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.0156 -> 0.0078
+2026-01-22 18:33:29,789 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 8
+
+========================================
+ITERATION 8
+========================================
+2026-01-22 18:33:29,790 - INFO - Running forecast model...
+2026-01-22 18:33:29,790 - INFO - ============================================================
+2026-01-22 18:33:29,790 - INFO - Starting Backbook Forecast
+2026-01-22 18:33:29,790 - INFO - ============================================================
+2026-01-22 18:33:29,790 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:33:29,790 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:33:30,918 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:33:30,918 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:33:30,919 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:33:30,974 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:33:30,975 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:33:30,979 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:33:30,987 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:33:30,987 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:33:30,988 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:33:30,988 - INFO - MOB range: 0 to 69
+2026-01-22 18:33:30,988 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:33:30,991 - INFO - Loaded 49 methodology rules
+2026-01-22 18:33:30,995 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:33:30,995 - INFO - No debt sale schedule loaded
+2026-01-22 18:33:30,995 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:33:30,995 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:33:31,006 - INFO - Seasonal factors calculated:
+2026-01-22 18:33:31,006 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:33:31,007 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:33:31,007 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:33:31,007 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:33:31,007 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:33:31,007 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:33:31,007 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:33:31,007 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:33:31,009 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:33:31,009 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:33:31,009 - INFO - Calculating base curves...
+2026-01-22 18:33:31,203 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:33:31,203 - INFO - Extending curves for 12 months...
+2026-01-22 18:33:31,268 - INFO - Extended curves to 2716 rows
+2026-01-22 18:33:31,268 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:33:31,268 - INFO - Calculating impairment actuals...
+2026-01-22 18:33:31,313 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:33:31,313 - INFO - Calculating impairment curves...
+2026-01-22 18:33:31,332 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:33:31,332 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:33:31,332 - INFO - Generating seed curves...
+2026-01-22 18:33:31,332 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:33:31,336 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:33:31,336 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:33:31,336 - INFO - Building rate lookup...
+2026-01-22 18:33:54,157 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:33:54,158 - INFO - Building impairment lookup...
+2026-01-22 18:33:56,727 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:33:56,728 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:33:56,728 - INFO - Running forecast for 12 months...
+2026-01-22 18:33:56,728 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:33:56,871 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:33:57,017 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:33:57,155 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:33:57,299 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:33:57,446 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:33:57,582 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:33:57,719 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:33:57,866 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:33:58,012 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:33:58,149 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:33:58,282 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:33:58,681 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:33:58,682 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:33:58,682 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:33:58,682 - INFO - Generating summary output...
+2026-01-22 18:33:58,688 - INFO - Generated summary with 60 rows
+2026-01-22 18:33:58,689 - INFO - Generating details output...
+2026-01-22 18:33:58,693 - INFO - Generated details with 1140 rows
+2026-01-22 18:33:58,693 - INFO - Generating impairment output...
+2026-01-22 18:33:58,697 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:33:58,697 - INFO - Generating validation output...
+2026-01-22 18:33:58,707 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:33:58,707 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:33:58,707 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:33:58,727 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:33:59,739 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:34:00,309 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:34:00,585 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:34:00,585 - INFO - Excel export complete
+2026-01-22 18:34:00,585 - INFO - 
+============================================================
+2026-01-22 18:34:00,585 - INFO - Forecast complete in 30.79 seconds
+2026-01-22 18:34:00,585 - INFO - Output saved to: calibration_output
+2026-01-22 18:34:00,585 - INFO - ============================================================
+2026-01-22 18:34:00,586 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:34:00,586 - INFO -   Total checks: 5700
+2026-01-22 18:34:00,586 - INFO -   Passed: 5681
+2026-01-22 18:34:00,586 - INFO -   Failed: 19
+2026-01-22 18:34:00,826 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:34:00,842 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:34:00,854 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:34:00,854 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:34:00,855 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:34:00,855 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:34:00,855 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,856 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,856 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,856 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,856 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,857 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,857 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,857 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:34:00,858 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:34:00,859 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:34:00,859 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:34:00,859 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:34:00,859 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:34:00,860 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,860 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,860 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,861 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,861 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,861 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,861 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,861 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:34:00,862 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:34:00,862 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:34:00,863 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,863 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:00,864 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,864 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,864 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,864 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:00,865 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,865 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,865 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,865 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,866 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,866 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,866 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,866 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,867 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,867 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:00,868 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:00,868 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:34:00,868 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,868 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:00,869 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,869 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,870 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,870 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:00,870 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,870 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,871 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,871 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,872 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,872 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,873 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,873 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:00,873 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,874 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:00,875 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:00,875 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:34:00,876 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:34:00,876 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:34:00,877 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,877 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:00,877 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:00,877 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:00,878 - INFO - Adding scaling override rules...
+2026-01-22 18:34:00,879 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0002 -> 0.0001
+2026-01-22 18:34:00,879 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0002 -> 0.0001
+2026-01-22 18:34:00,880 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,880 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,881 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,881 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,882 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,882 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,883 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,883 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,883 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,884 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:00,885 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.0078 -> 0.0039
+2026-01-22 18:34:00,886 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 9
+
+========================================
+ITERATION 9
+========================================
+2026-01-22 18:34:00,886 - INFO - Running forecast model...
+2026-01-22 18:34:00,886 - INFO - ============================================================
+2026-01-22 18:34:00,887 - INFO - Starting Backbook Forecast
+2026-01-22 18:34:00,887 - INFO - ============================================================
+2026-01-22 18:34:00,887 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:34:00,887 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:34:01,831 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:34:01,831 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:34:01,832 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:34:01,880 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:34:01,880 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:34:01,884 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:34:01,889 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:34:01,889 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:34:01,890 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:34:01,890 - INFO - MOB range: 0 to 69
+2026-01-22 18:34:01,890 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:34:01,892 - INFO - Loaded 49 methodology rules
+2026-01-22 18:34:01,895 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:34:01,895 - INFO - No debt sale schedule loaded
+2026-01-22 18:34:01,895 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:34:01,895 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:34:01,905 - INFO - Seasonal factors calculated:
+2026-01-22 18:34:01,905 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:34:01,905 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:34:01,905 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:34:01,905 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:34:01,905 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:34:01,905 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:34:01,905 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:34:01,905 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:34:01,907 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:34:01,907 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:34:01,907 - INFO - Calculating base curves...
+2026-01-22 18:34:02,040 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:34:02,040 - INFO - Extending curves for 12 months...
+2026-01-22 18:34:02,096 - INFO - Extended curves to 2716 rows
+2026-01-22 18:34:02,097 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:34:02,097 - INFO - Calculating impairment actuals...
+2026-01-22 18:34:02,139 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:34:02,139 - INFO - Calculating impairment curves...
+2026-01-22 18:34:02,156 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:34:02,156 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:34:02,156 - INFO - Generating seed curves...
+2026-01-22 18:34:02,156 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:34:02,160 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:34:02,160 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:34:02,160 - INFO - Building rate lookup...
+2026-01-22 18:34:24,685 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:34:24,686 - INFO - Building impairment lookup...
+2026-01-22 18:34:27,091 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:34:27,092 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:34:27,092 - INFO - Running forecast for 12 months...
+2026-01-22 18:34:27,092 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:34:27,232 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:34:27,373 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:34:27,512 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:34:27,652 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:34:27,790 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:34:27,931 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:34:28,074 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:34:28,209 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:34:28,348 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:34:28,481 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:34:28,612 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:34:29,008 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:34:29,008 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:34:29,009 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:34:29,009 - INFO - Generating summary output...
+2026-01-22 18:34:29,017 - INFO - Generated summary with 60 rows
+2026-01-22 18:34:29,017 - INFO - Generating details output...
+2026-01-22 18:34:29,025 - INFO - Generated details with 1140 rows
+2026-01-22 18:34:29,025 - INFO - Generating impairment output...
+2026-01-22 18:34:29,030 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:34:29,030 - INFO - Generating validation output...
+2026-01-22 18:34:29,042 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:34:29,042 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:34:29,043 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:34:29,064 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:34:30,119 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:34:30,689 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:34:30,992 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:34:30,992 - INFO - Excel export complete
+2026-01-22 18:34:30,992 - INFO - 
+============================================================
+2026-01-22 18:34:30,992 - INFO - Forecast complete in 30.11 seconds
+2026-01-22 18:34:30,993 - INFO - Output saved to: calibration_output
+2026-01-22 18:34:30,993 - INFO - ============================================================
+2026-01-22 18:34:30,993 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:34:30,993 - INFO -   Total checks: 5700
+2026-01-22 18:34:30,993 - INFO -   Passed: 5681
+2026-01-22 18:34:30,994 - INFO -   Failed: 19
+2026-01-22 18:34:31,253 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:34:31,271 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:34:31,283 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:34:31,284 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:34:31,285 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:34:31,285 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:34:31,285 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,286 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,286 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,287 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,287 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,287 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,288 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,288 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:34:31,289 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:34:31,289 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:34:31,289 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:34:31,290 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:34:31,290 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:34:31,291 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,291 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,292 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,292 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,292 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,293 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,293 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,293 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:34:31,294 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:34:31,294 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:34:31,294 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,295 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:31,295 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,295 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,295 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,296 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:31,296 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,296 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,296 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,297 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,297 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,297 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,298 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,298 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,298 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,299 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:31,299 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:31,300 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:34:31,301 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,301 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:31,301 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,301 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,302 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,303 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:31,303 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,303 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,303 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,304 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,304 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,304 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,304 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,305 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:34:31,305 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,305 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:31,306 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:31,306 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:34:31,307 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:34:31,307 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:34:31,308 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,308 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:34:31,308 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:34:31,309 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:34:31,309 - INFO - Adding scaling override rules...
+2026-01-22 18:34:31,310 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,310 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,311 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,312 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,312 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,313 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,314 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,314 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,315 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,315 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,316 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,317 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:34:31,318 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.0039 -> 0.0019
+2026-01-22 18:34:31,319 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 10
+
+========================================
+ITERATION 10
+========================================
+2026-01-22 18:34:31,320 - INFO - Running forecast model...
+2026-01-22 18:34:31,320 - INFO - ============================================================
+2026-01-22 18:34:31,320 - INFO - Starting Backbook Forecast
+2026-01-22 18:34:31,320 - INFO - ============================================================
+2026-01-22 18:34:31,320 - INFO - 
+[Step 1/9] Loading data...
+2026-01-22 18:34:31,320 - INFO - Loading fact raw data from: Fact_Raw.xlsx
+2026-01-22 18:34:32,332 - INFO - Loaded 7239 rows from Excel file
+2026-01-22 18:34:32,332 - INFO - Renamed column 'Provision' to 'Provision_Balance'
+2026-01-22 18:34:32,332 - INFO - Renamed column 'DebtSaleProceeds' to 'Debt_Sale_Proceeds'
+2026-01-22 18:34:32,386 - INFO - Added missing column Debt_Sale_WriteOffs with default value 0
+2026-01-22 18:34:32,386 - INFO - Added missing column Debt_Sale_Provision_Release with default value 0
+2026-01-22 18:34:32,389 - INFO - Converting negative provision balances to positive values
+2026-01-22 18:34:32,396 - INFO - Validated 7239 rows with 23 cohorts
+2026-01-22 18:34:32,397 - INFO - Segments: ['NON PRIME', 'NRP-S', 'NRP-M', 'PRIME', 'NRP-L']
+2026-01-22 18:34:32,397 - INFO - Date range: 2019-12-31 00:00:00 to 2025-09-30 00:00:00
+2026-01-22 18:34:32,397 - INFO - MOB range: 0 to 69
+2026-01-22 18:34:32,397 - INFO - Loading rate methodology from: sample_data/Rate_Methodology_v6_Simplified.csv
+2026-01-22 18:34:32,399 - INFO - Loaded 49 methodology rules
+2026-01-22 18:34:32,402 - WARNING - Found invalid approaches: ['ScaledCohortAvg']
+2026-01-22 18:34:32,402 - INFO - No debt sale schedule loaded
+2026-01-22 18:34:32,402 - INFO - 
+[Step 1b/9] Calculating seasonal factors...
+2026-01-22 18:34:32,402 - INFO - Calculating seasonal factors for coverage ratios...
+2026-01-22 18:34:32,413 - INFO - Seasonal factors calculated:
+2026-01-22 18:34:32,413 - INFO -   NON PRIME: 1:1.086, 2:1.040, 3:0.955, 4:0.984, 5:0.916, 6:0.923, 7:0.899, 8:0.966, 9:1.004, 10:1.047, 11:1.188, 12:1.033
+2026-01-22 18:34:32,413 - INFO -   NRP-S: 1:1.050, 2:1.067, 3:0.996, 4:1.012, 5:0.930, 6:0.958, 7:0.910, 8:0.970, 9:0.999, 10:0.997, 11:1.111, 12:1.019
+2026-01-22 18:34:32,413 - INFO -   NRP-M: 1:1.139, 2:1.169, 3:0.920, 4:0.936, 5:0.891, 6:0.949, 7:0.909, 8:0.997, 9:1.010, 10:1.076, 11:0.975, 12:1.105
+2026-01-22 18:34:32,413 - INFO -   NRP-L: 1:0.738, 2:0.862, 3:1.075, 4:1.201, 5:1.017, 6:1.169, 7:1.046, 8:1.270, 9:1.364, 10:1.033, 11:0.556, 12:0.686
+2026-01-22 18:34:32,413 - INFO -   PRIME: 1:1.055, 2:1.187, 3:0.900, 4:0.930, 5:0.916, 6:1.021, 7:0.978, 8:1.059, 9:1.127, 10:0.934, 11:0.881, 12:1.029
+2026-01-22 18:34:32,413 - INFO -   ALL: 1:1.086, 2:1.093, 3:0.947, 4:0.976, 5:0.912, 6:0.952, 7:0.915, 8:0.992, 9:1.031, 10:1.036, 11:1.050, 12:1.043
+2026-01-22 18:34:32,413 - INFO - 
+[Step 1c/9] Loading overlay adjustments...
+2026-01-22 18:34:32,414 - INFO - Loading overlays from: sample_data/Overlays.csv
+2026-01-22 18:34:32,415 - INFO - Overlay file is empty, no overlays applied
+2026-01-22 18:34:32,415 - INFO - 
+[Step 2/9] Calculating curves...
+2026-01-22 18:34:32,415 - INFO - Calculating base curves...
+2026-01-22 18:34:32,550 - INFO - Calculated curves for 1564 Segment × Cohort × MOB combinations
+2026-01-22 18:34:32,550 - INFO - Extending curves for 12 months...
+2026-01-22 18:34:32,614 - INFO - Extended curves to 2716 rows
+2026-01-22 18:34:32,614 - INFO - 
+[Step 3/9] Calculating impairment curves...
+2026-01-22 18:34:32,614 - INFO - Calculating impairment actuals...
+2026-01-22 18:34:32,654 - INFO - Calculated impairment actuals for 1564 entries
+2026-01-22 18:34:32,654 - INFO - Calculating impairment curves...
+2026-01-22 18:34:32,669 - INFO - Calculated impairment curves for 1564 entries
+2026-01-22 18:34:32,669 - INFO - 
+[Step 4/9] Generating seeds...
+2026-01-22 18:34:32,669 - INFO - Generating seed curves...
+2026-01-22 18:34:32,669 - INFO - Using last month: 2025-09-30 00:00:00
+2026-01-22 18:34:32,673 - INFO - Generated seed with 95 Segment × Cohort combinations
+2026-01-22 18:34:32,673 - INFO - 
+[Step 5/9] Building rate lookups...
+2026-01-22 18:34:32,673 - INFO - Building rate lookup...
+2026-01-22 18:34:55,085 - INFO - Built rate lookup with 1140 entries
+2026-01-22 18:34:55,086 - INFO - Building impairment lookup...
+2026-01-22 18:34:57,480 - INFO - Built impairment lookup with 1140 entries
+2026-01-22 18:34:57,481 - INFO - 
+[Step 6/9] Running forecast...
+2026-01-22 18:34:57,481 - INFO - Running forecast for 12 months...
+2026-01-22 18:34:57,481 - INFO - Forecasting month 1 with 95 cohorts
+2026-01-22 18:34:57,615 - INFO - Forecasting month 2 with 95 cohorts
+2026-01-22 18:34:57,760 - INFO - Forecasting month 3 with 95 cohorts
+2026-01-22 18:34:57,906 - INFO - Forecasting month 4 with 95 cohorts
+2026-01-22 18:34:58,049 - INFO - Forecasting month 5 with 95 cohorts
+2026-01-22 18:34:58,191 - INFO - Forecasting month 6 with 95 cohorts
+2026-01-22 18:34:58,327 - INFO - Forecasting month 7 with 95 cohorts
+2026-01-22 18:34:58,461 - INFO - Forecasting month 8 with 95 cohorts
+2026-01-22 18:34:58,595 - INFO - Forecasting month 9 with 95 cohorts
+2026-01-22 18:34:58,730 - INFO - Forecasting month 10 with 95 cohorts
+2026-01-22 18:34:58,871 - INFO - Forecasting month 11 with 95 cohorts
+2026-01-22 18:34:59,012 - INFO - Forecasting month 12 with 95 cohorts
+2026-01-22 18:34:59,404 - INFO - Calculated core coverage for 256 pre-debt-sale month rows
+2026-01-22 18:34:59,405 - INFO - Forecast complete with 1140 rows
+2026-01-22 18:34:59,405 - INFO - 
+[Step 7/9] Generating outputs...
+2026-01-22 18:34:59,405 - INFO - Generating summary output...
+2026-01-22 18:34:59,411 - INFO - Generated summary with 60 rows
+2026-01-22 18:34:59,411 - INFO - Generating details output...
+2026-01-22 18:34:59,416 - INFO - Generated details with 1140 rows
+2026-01-22 18:34:59,416 - INFO - Generating impairment output...
+2026-01-22 18:34:59,419 - INFO - Generated impairment output with 1140 rows
+2026-01-22 18:34:59,419 - INFO - Generating validation output...
+2026-01-22 18:34:59,429 - INFO - Generated validation output - Overall status: FAIL
+2026-01-22 18:34:59,429 - INFO - 
+[Step 8/9] Exporting to Excel...
+2026-01-22 18:34:59,429 - INFO - Exporting to Excel in: calibration_output
+2026-01-22 18:34:59,448 - INFO - Created: calibration_output/Forecast_Summary.xlsx
+2026-01-22 18:35:00,418 - INFO - Created: calibration_output/Forecast_Details.xlsx
+2026-01-22 18:35:00,956 - INFO - Created: calibration_output/Impairment_Analysis.xlsx
+2026-01-22 18:35:01,271 - INFO - Created: calibration_output/Validation_Report.xlsx
+2026-01-22 18:35:01,271 - INFO - Excel export complete
+2026-01-22 18:35:01,271 - INFO - 
+============================================================
+2026-01-22 18:35:01,271 - INFO - Forecast complete in 29.95 seconds
+2026-01-22 18:35:01,271 - INFO - Output saved to: calibration_output
+2026-01-22 18:35:01,271 - INFO - ============================================================
+2026-01-22 18:35:01,272 - INFO - 
+Validation Summary: FAIL
+2026-01-22 18:35:01,272 - INFO -   Total checks: 5700
+2026-01-22 18:35:01,272 - INFO -   Passed: 5681
+2026-01-22 18:35:01,272 - INFO -   Failed: 19
+2026-01-22 18:35:01,501 - INFO -   Forecast completed: 60 rows in summary
+2026-01-22 18:35:01,516 - INFO -   Comparing 11 months
+
+Max variance: 4353.03%
+
+Top variances to address:
+  Prime                NetImpairment   +4353.03%
+  Prime                GrossImpairment +4159.74%
+  Near Prime Medium    GrossImpairment -162.73%
+  Near Prime Medium    NetImpairment   -161.51%
+  Near Prime Small     GrossImpairment -133.92%
+2026-01-22 18:35:01,528 - INFO - Adjusting methodology based on variances...
+2026-01-22 18:35:01,528 - INFO -   Prime NetImpairment: +4353.0% variance
+2026-01-22 18:35:01,529 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:35:01,529 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.511
+2026-01-22 18:35:01,530 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,530 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,531 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,531 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,531 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,532 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,532 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,532 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.511
+2026-01-22 18:35:01,533 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.511
+2026-01-22 18:35:01,533 - INFO -     Suggest scaling PRIME/WO_DebtSold CohortAvg by 0.511
+2026-01-22 18:35:01,533 - INFO -   Prime GrossImpairment: +4159.7% variance
+2026-01-22 18:35:01,534 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:35:01,534 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortTrend by 0.512
+2026-01-22 18:35:01,534 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,534 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,535 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,535 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,535 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,536 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,536 - INFO -     Adjusted PRIME/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,536 - INFO -     Suggest scaling PRIME/Total_Coverage_Ratio CohortAvg by 0.512
+2026-01-22 18:35:01,537 - INFO -     Suggest scaling PRIME/WO_Other CohortAvg by 0.512
+2026-01-22 18:35:01,537 - INFO -   Near Prime Medium GrossImpairment: -162.7% variance
+2026-01-22 18:35:01,538 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,538 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:35:01,538 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,539 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,539 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,539 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:35:01,540 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,540 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,540 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,540 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,541 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,541 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,542 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,542 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,542 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,543 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:35:01,543 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:35:01,543 - INFO -   Near Prime Medium NetImpairment: -161.5% variance
+2026-01-22 18:35:01,544 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,544 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:35:01,544 - INFO -     Adjusted NRP-M/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,544 - INFO -     Suggest scaling NRP-M/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,545 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,545 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:35:01,546 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,546 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,546 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,547 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,547 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,548 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,548 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,549 - INFO -     Adjusted NRP-L/Total_Coverage_Ratio Manual: 0.0 -> 0.000000
+2026-01-22 18:35:01,549 - INFO -     Suggest scaling NRP-L/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,549 - INFO -     Suggest scaling NRP-M/WO_Other CohortAvg by 0.500
+2026-01-22 18:35:01,550 - INFO -     Suggest scaling NRP-L/WO_Other CohortAvg by 0.500
+2026-01-22 18:35:01,551 - INFO -     Suggest scaling NRP-M/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:35:01,551 - INFO -     Suggest scaling NRP-L/WO_DebtSold CohortAvg by 0.500
+2026-01-22 18:35:01,551 - INFO -   Near Prime Small GrossImpairment: -133.9% variance
+2026-01-22 18:35:01,552 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,552 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortTrend by 0.500
+2026-01-22 18:35:01,552 - INFO -     Suggest scaling NRP-S/Total_Coverage_Ratio CohortAvg by 0.500
+2026-01-22 18:35:01,552 - INFO -     Suggest scaling NRP-S/WO_Other CohortAvg by 0.500
+2026-01-22 18:35:01,552 - INFO - Adding scaling override rules...
+2026-01-22 18:35:01,553 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,554 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,554 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,555 - INFO -   Updated PRIME/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,555 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,556 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,556 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,557 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,557 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,558 - INFO -   Updated NRP-M/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,559 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,559 - INFO -   Updated NRP-L/Total_Coverage_Ratio scale: 0.0001 -> 0.0001
+2026-01-22 18:35:01,560 - INFO -   Updated NRP-S/Total_Coverage_Ratio scale: 0.0019 -> 0.0009
+2026-01-22 18:35:01,561 - INFO -   Methodology saved to: sample_data/Rate_Methodology_v6_Simplified.csv
+
+Methodology updated for iteration 11
+
+========================================
+Did not converge within 10 iterations
+Final max variance: 4353.03%
+========================================
+
+Iteration History:
+----------------------------------------
+  Iteration 1: Max variance 4353.03% 
+  Iteration 2: Max variance 4353.03% 
+  Iteration 3: Max variance 4353.03% 
+  Iteration 4: Max variance 4353.03% 
+  Iteration 5: Max variance 4353.03% 
+  Iteration 6: Max variance 4353.03% 
+  Iteration 7: Max variance 4353.03% 
+  Iteration 8: Max variance 4353.03% 
+  Iteration 9: Max variance 4353.03% 
+  Iteration 10: Max variance 4353.03% 
+
+Final variance analysis saved to: calibration_output/final_variance_analysis.csv
