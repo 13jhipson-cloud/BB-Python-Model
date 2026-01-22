@@ -80,7 +80,8 @@ STEP 7: Calculate Debt Sale components
     Debt_Sale_Proceeds = Debt_Sale_Proceeds_Rate × WO_DebtSold
 
 STEP 8: Calculate Net Impairment
-    Non_DS_Provision_Movement = Provision_Movement + Debt_Sale_Provision_Release
+    # Sign convention: DS_Provision_Release and DS_Proceeds stored as NEGATIVE (credit)
+    Non_DS_Provision_Movement = Provision_Movement - Debt_Sale_Provision_Release
     Gross_Impairment_ExcludingDS = Non_DS_Provision_Movement + WO_Other
     Debt_Sale_Impact = WO_DebtSold + Debt_Sale_Provision_Release + Debt_Sale_Proceeds
     Net_Impairment = Gross_Impairment_ExcludingDS + Debt_Sale_Impact
@@ -122,18 +123,20 @@ STEP 5: Calculate New Provision Balance
 STEP 6: Calculate Provision Movement
     Provision_Movement = £11,950 - £12,000 = -£50 (small release)
 
-STEP 7: Calculate Debt Sale components
-    Debt_Sale_Provision_Release = £1,570
-    Debt_Sale_Proceeds = 90% × £2,000 = £1,800
+STEP 7: Calculate Debt Sale components (stored as NEGATIVE - credit convention)
+    Debt_Sale_Provision_Release = -£1,570 (credit: release from provision)
+    Debt_Sale_Proceeds = -(90% × £2,000) = -£1,800 (credit: cash inflow)
 
 STEP 8: Calculate Net Impairment
-    Non_DS_Provision_Movement = -£50 + £1,570 = £1,520
+    # Formula uses minus: Non_DS = Total - DS_Release (where DS_Release is negative)
+    Non_DS_Provision_Movement = -£50 - (-£1,570) = -£50 + £1,570 = £1,520
     Gross_Impairment_ExcludingDS = £1,520 + £200 = £1,720
-    Debt_Sale_Impact = £2,000 + £1,570 + £1,800 = £5,370
-    Net_Impairment = £1,720 + £5,370 = £7,090
+    # Debt Sale Impact with credit convention negatives:
+    Debt_Sale_Impact = £2,000 + (-£1,570) + (-£1,800) = -£1,370 (net gain from sale)
+    Net_Impairment = £1,720 + (-£1,370) = £350
 
 STEP 9: Calculate Closing NBV
-    ClosingNBV = £95,600 - £7,090 = £88,510
+    ClosingNBV = £95,600 - £350 = £95,250
 
 ================================================================================
 SUMMARY OF KEY CHANGES

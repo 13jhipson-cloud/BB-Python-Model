@@ -184,7 +184,9 @@ ClosingNBV = ClosingGBV - Net_Impairment
 ```
 Total_Provision_Balance = ClosingGBV × Total_Coverage_Ratio
 Total_Provision_Movement = Total_Provision_Balance[t] - Total_Provision_Balance[t-1]
-Non_DS_Provision_Movement = Total_Provision_Movement + Debt_Sale_Provision_Release
+
+# Sign convention: DS_Provision_Release and DS_Proceeds stored as NEGATIVE (credit)
+Non_DS_Provision_Movement = Total_Provision_Movement - Debt_Sale_Provision_Release
 Gross_Impairment_ExcludingDS = Non_DS_Provision_Movement + WO_Other
 Debt_Sale_Impact = Debt_Sale_WriteOffs + Debt_Sale_Provision_Release + Debt_Sale_Proceeds
 Net_Impairment = Gross_Impairment_ExcludingDS + Debt_Sale_Impact

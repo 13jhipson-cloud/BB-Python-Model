@@ -1230,9 +1230,16 @@ def calculate_impairment_actuals(fact_raw: pd.DataFrame) -> pd.DataFrame:
     impairment['Prior_Provision_Balance'] = impairment.groupby(['Segment', 'Cohort'])['Total_Provision_Balance'].shift(1).fillna(0)
     impairment['Total_Provision_Movement'] = impairment['Total_Provision_Balance'] - impairment['Prior_Provision_Balance']
 
+    # Apply credit convention: DS_Provision_Release and DS_Proceeds stored as NEGATIVE
+    # (If raw data has positive values, negate them for credit convention)
+    impairment['Debt_Sale_Provision_Release'] = -impairment['Debt_Sale_Provision_Release'].abs()
+    impairment['Debt_Sale_Proceeds'] = -impairment['Debt_Sale_Proceeds'].abs()
+
     # Calculate impairment components
-    impairment['Non_DS_Provision_Movement'] = impairment['Total_Provision_Movement'] + impairment['Debt_Sale_Provision_Release']
+    # Formula uses minus: Non_DS = Total - DS_Release (with DS_Release as negative credit)
+    impairment['Non_DS_Provision_Movement'] = impairment['Total_Provision_Movement'] - impairment['Debt_Sale_Provision_Release']
     impairment['Gross_Impairment_ExcludingDS'] = impairment['Non_DS_Provision_Movement'] + impairment['WO_Other']
+    # Debt_Sale_Impact: WriteOffs (debit) + Provision_Release (credit/negative) + Proceeds (credit/negative)
     impairment['Debt_Sale_Impact'] = (
         impairment['Debt_Sale_WriteOffs'] +
         impairment['Debt_Sale_Provision_Release'] +
@@ -1964,6 +1971,32 @@ def apply_approach(curves_df: pd.DataFrame, segment: str, cohort: str,
                     'ScaledDonor_Error': sd_result.get('error', 'Unknown error'),
                 }
 
+    elif approach == 'ScaledCohortAvg':
+        # ScaledCohortAvg: Same as CohortAvg but applies a scaling factor from Param2
+        # Param1 = lookback periods (same as CohortAvg)
+        # Param2 = scaling factor (e.g., 1.1 = +10%, 0.9 = -10%)
+        try:
+            lookback = int(float(param1)) if param1 and param1 != 'None' else Config.LOOKBACK_PERIODS
+        except (ValueError, TypeError):
+            lookback = Config.LOOKBACK_PERIODS
+
+        # Get scale factor from Param2
+        param2 = methodology.get('Param2')
+        try:
+            scale_factor = float(param2) if param2 and param2 != 'None' and param2 != 'nan' else 1.0
+        except (ValueError, TypeError):
+            scale_factor = 1.0
+
+        exclude_zeros = metric in ['WO_DebtSold', 'Debt_Sale_Coverage_Ratio', 'Debt_Sale_Proceeds_Rate']
+        rate = fn_cohort_avg(curves_df, segment, cohort, mob, metric_col, lookback, exclude_zeros)
+
+        if rate is not None:
+            scaled_rate = rate * scale_factor
+            tag = f'ScaledCohortAvg(x{scale_factor:.3f})'
+            return {'Rate': scaled_rate, 'ApproachTag': tag}
+        else:
+            return {'Rate': 0.0, 'ApproachTag': 'ScaledCohortAvg_NoData_ERROR'}
+
     else:
         return {'Rate': 0.0, 'ApproachTag': f'UnknownApproach_ERROR:{approach}'}
 
@@ -2338,13 +2371,16 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         total_provision_movement = total_provision_balance - prior_provision
 
         # Step 3: Calculate DS provision release (DS Coverage Ratio × DS WriteOffs)
-        ds_provision_release = ds_coverage_ratio * debt_sale_wo
+        # Stored as NEGATIVE (credit convention - release reduces provision)
+        ds_provision_release = -(ds_coverage_ratio * debt_sale_wo)
 
         # Step 4: Calculate DS proceeds (DS Proceeds Rate × DS WriteOffs)
-        ds_proceeds = ds_proceeds_rate * debt_sale_wo
+        # Stored as NEGATIVE (credit convention - cash inflow)
+        ds_proceeds = -(ds_proceeds_rate * debt_sale_wo)
 
         # Step 5: Calculate Non-DS provision movement
-        non_ds_provision_movement = total_provision_movement + ds_provision_release
+        # Formula uses minus: Non_DS = Total - DS_Release (with DS_Release as negative credit)
+        non_ds_provision_movement = total_provision_movement - ds_provision_release
 
         # Step 6: Calculate Gross impairment (excluding debt sales)
         gross_impairment_excl_ds = non_ds_provision_movement + wo_other
