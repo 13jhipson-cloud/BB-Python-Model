@@ -2821,13 +2821,15 @@ def generate_validation_output(forecast: pd.DataFrame) -> Tuple[pd.DataFrame, pd
     recon = forecast.copy()
 
     # GBV reconciliation
+    # Note: WO_DebtSold and WO_Other are stored as NEGATIVE (expense convention)
+    # So we ADD them (adding negative = subtracting positive)
     recon['ClosingGBV_Calculated'] = (
         recon['OpeningGBV'] +
         recon['InterestRevenue'] -
         abs(recon['Coll_Principal']) -
-        abs(recon['Coll_Interest']) -
-        recon['WO_DebtSold'] -
-        recon['WO_Other']
+        abs(recon['Coll_Interest']) +
+        recon['WO_DebtSold'] +  # Negative stored value, so add
+        recon['WO_Other']  # Negative stored value, so add
     ).round(2)
 
     recon['GBV_Variance'] = (recon['ClosingGBV_Calculated'] - recon['ClosingGBV']).abs().round(2)
@@ -2881,9 +2883,12 @@ def generate_validation_output(forecast: pd.DataFrame) -> Tuple[pd.DataFrame, pd
         {
             'Check': 'Coverage_Ratio_Range',
             'Total_Rows': total_rows,
-            # Allow coverage ratios between 0 and 1.0 (0% to 100%)
-            'Passed': ((forecast['Total_Coverage_Ratio'] >= 0.0) & (forecast['Total_Coverage_Ratio'] <= 1.0)).sum(),
-            'Failed': ((forecast['Total_Coverage_Ratio'] < 0.0) | (forecast['Total_Coverage_Ratio'] > 1.0)).sum(),
+            # Allow coverage ratios between configured min and max (default 0-250%)
+            # Higher cap accommodates IFRS 9 uplifts and conservative provisioning
+            'Passed': ((forecast['Total_Coverage_Ratio'] >= Config.RATE_CAPS['Total_Coverage_Ratio'][0]) &
+                      (forecast['Total_Coverage_Ratio'] <= Config.RATE_CAPS['Total_Coverage_Ratio'][1])).sum(),
+            'Failed': ((forecast['Total_Coverage_Ratio'] < Config.RATE_CAPS['Total_Coverage_Ratio'][0]) |
+                      (forecast['Total_Coverage_Ratio'] > Config.RATE_CAPS['Total_Coverage_Ratio'][1])).sum(),
         },
     ]
 

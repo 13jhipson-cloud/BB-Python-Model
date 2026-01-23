@@ -2,6 +2,8 @@
 output/
 output_fixed/
 output_fixed_full/
+output_fixed_v2/
+output_fixed_v3/
 test_output/
 Forecast_Transparency_Report*.xlsx
 Fact_Raw_Transformed.csv
