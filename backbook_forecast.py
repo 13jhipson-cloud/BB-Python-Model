@@ -81,7 +81,7 @@ class Config:
     # Valid rate calculation approaches
     VALID_APPROACHES: List[str] = [
         'CohortAvg', 'CohortTrend', 'DonorCohort', 'ScaledDonor',
-        'SegMedian', 'Manual', 'Zero'
+        'SegMedian', 'Manual', 'Zero', 'ScaledCohortAvg'
     ]
 
     # Seasonality configuration
