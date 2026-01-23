@@ -1,5 +1,7 @@
 # Generated output files
 output/
+output_fixed/
+output_fixed_full/
 test_output/
 Forecast_Transparency_Report*.xlsx
 Fact_Raw_Transformed.csv
