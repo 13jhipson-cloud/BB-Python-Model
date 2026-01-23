@@ -1508,16 +1508,28 @@ def fn_cohort_avg(curves_df: pd.DataFrame, segment: str, cohort: str,
     cohort_str = clean_cohort(cohort)
 
     # Filter data - use MOB < mob to only include HISTORICAL data, not extended curves
+    # For early MOBs (MOB <= MOB_THRESHOLD + 1), use all available data (MOB >= 1)
+    # This fixes the bug where newly originated cohorts got zero rates because
+    # there was no data satisfying MOB > 3 AND MOB < 4 (impossible for MOB=4 cohorts)
+    if mob <= Config.MOB_THRESHOLD + 1:
+        # For early MOBs, use all available historical data
+        min_mob_filter = 1  # Include from MOB 1 onwards
+    else:
+        # For mature MOBs, skip the initial ramp-up period
+        min_mob_filter = Config.MOB_THRESHOLD
+
     mask = (
         (curves_df['Segment'] == segment) &
         (curves_df['Cohort'] == cohort_str) &
-        (curves_df['MOB'] > Config.MOB_THRESHOLD) &
-        (curves_df['MOB'] < mob)  # CHANGED: < instead of <= to exclude forecast MOB
+        (curves_df['MOB'] >= min_mob_filter) &
+        (curves_df['MOB'] < mob)  # Only include HISTORICAL data, not forecast MOB
     )
 
     data = curves_df[mask].sort_values('MOB', ascending=False)
 
-    if len(data) < 2:
+    # For early MOBs, allow single data point; for mature MOBs, require 2+
+    min_data_points = 1 if mob <= Config.MOB_THRESHOLD + 1 else 2
+    if len(data) < min_data_points:
         return None
 
     if metric_col not in data.columns:
@@ -1560,11 +1572,16 @@ def fn_cohort_trend(curves_df: pd.DataFrame, segment: str, cohort: str,
     """
     cohort_str = clean_cohort(cohort)
 
-    # Filter data
+    # Filter data - same early MOB handling as fn_cohort_avg
+    if mob <= Config.MOB_THRESHOLD + 1:
+        min_mob_filter = 1
+    else:
+        min_mob_filter = Config.MOB_THRESHOLD
+
     mask = (
         (curves_df['Segment'] == segment) &
         (curves_df['Cohort'] == cohort_str) &
-        (curves_df['MOB'] > Config.MOB_THRESHOLD) &
+        (curves_df['MOB'] >= min_mob_filter) &
         (curves_df['MOB'] < mob)
     )
 
@@ -1900,14 +1917,25 @@ def apply_approach(curves_df: pd.DataFrame, segment: str, cohort: str,
             tag = 'CohortAvg_NonZero' if exclude_zeros else 'CohortAvg'
             return {'Rate': rate, 'ApproachTag': tag}
         else:
-            return {'Rate': 0.0, 'ApproachTag': 'CohortAvg_NoData_ERROR'}
+            # Fallback to SegMedian when CohortAvg has insufficient data
+            # This prevents newly originated cohorts from getting zero rates
+            seg_rate = fn_seg_median(curves_df, segment, mob, metric_col)
+            if seg_rate is not None:
+                return {'Rate': seg_rate, 'ApproachTag': 'CohortAvg_FallbackSegMedian'}
+            else:
+                return {'Rate': 0.0, 'ApproachTag': 'CohortAvg_NoData_ERROR'}
 
     elif approach == 'CohortTrend':
         rate = fn_cohort_trend(curves_df, segment, cohort, mob, metric_col)
         if rate is not None:
             return {'Rate': rate, 'ApproachTag': 'CohortTrend'}
         else:
-            return {'Rate': 0.0, 'ApproachTag': 'CohortTrend_NoData_ERROR'}
+            # Fallback to SegMedian when CohortTrend has insufficient data
+            seg_rate = fn_seg_median(curves_df, segment, mob, metric_col)
+            if seg_rate is not None:
+                return {'Rate': seg_rate, 'ApproachTag': 'CohortTrend_FallbackSegMedian'}
+            else:
+                return {'Rate': 0.0, 'ApproachTag': 'CohortTrend_NoData_ERROR'}
 
     elif approach == 'SegMedian':
         rate = fn_seg_median(curves_df, segment, mob, metric_col)
@@ -2887,6 +2915,147 @@ def generate_validation_output(forecast: pd.DataFrame) -> Tuple[pd.DataFrame, pd
     return reconciliation, validation_df
 
 
+def generate_combined_actuals_forecast(fact_raw: pd.DataFrame, forecast: pd.DataFrame,
+                                        output_dir: str) -> pd.DataFrame:
+    """
+    Generate a combined actuals + forecast output file for variance analysis.
+
+    This creates a single file per iteration with both historical actuals and
+    forecast data, enabling pivot table analysis and comparison to budget.
+
+    Args:
+        fact_raw: Historical actuals data from Fact_Raw
+        forecast: Forecast data from the model
+        output_dir: Output directory path
+
+    Returns:
+        pd.DataFrame: Combined actuals + forecast data
+    """
+    logger.info("Generating combined actuals + forecast output...")
+
+    # Define common columns for both actuals and forecast
+    common_cols = [
+        'CalendarMonth', 'Segment', 'Cohort', 'MOB',
+        'OpeningGBV', 'ClosingGBV', 'InterestRevenue',
+        'Coll_Principal', 'Coll_Interest',
+        'WO_DebtSold', 'WO_Other',
+        'ContraSettlements_Principal', 'ContraSettlements_Interest',
+        'NewLoanAmount'
+    ]
+
+    # Impairment columns (may not exist in older data)
+    impairment_cols = [
+        'Total_Provision_Balance', 'Total_Coverage_Ratio',
+        'Total_Provision_Movement', 'Gross_Impairment_ExcludingDS',
+        'Debt_Sale_Impact', 'Net_Impairment', 'ClosingNBV'
+    ]
+
+    # Process actuals
+    actuals = fact_raw.copy()
+    actuals['Source'] = 'Actuals'
+    actuals['ForecastMonth'] = actuals['CalendarMonth']
+
+    # Map ClosingGBV_Reported to ClosingGBV if needed
+    if 'ClosingGBV_Reported' in actuals.columns and 'ClosingGBV' not in actuals.columns:
+        actuals['ClosingGBV'] = actuals['ClosingGBV_Reported']
+
+    # Map Provision_Balance to Total_Provision_Balance if available
+    if 'Provision_Balance' in actuals.columns:
+        actuals['Total_Provision_Balance'] = actuals['Provision_Balance']
+        # Calculate coverage ratio for actuals
+        actuals['Total_Coverage_Ratio'] = np.where(
+            actuals['ClosingGBV'] > 0,
+            actuals['Total_Provision_Balance'] / actuals['ClosingGBV'],
+            0
+        )
+        # Calculate NBV
+        actuals['ClosingNBV'] = actuals['ClosingGBV'] - actuals['Total_Provision_Balance']
+
+    # Process forecast
+    fcst = forecast.copy()
+    fcst['Source'] = 'Forecast'
+    fcst['CalendarMonth'] = fcst['ForecastMonth']
+
+    # Get columns that exist in both
+    actuals_cols = set(actuals.columns)
+    forecast_cols = set(fcst.columns)
+
+    # Build final column list
+    final_cols = ['Source', 'CalendarMonth', 'Segment', 'Cohort', 'MOB']
+
+    # Add financial columns that exist
+    for col in ['OpeningGBV', 'ClosingGBV', 'InterestRevenue', 'Coll_Principal',
+                'Coll_Interest', 'WO_DebtSold', 'WO_Other',
+                'ContraSettlements_Principal', 'ContraSettlements_Interest',
+                'NewLoanAmount', 'Total_Provision_Balance', 'Total_Coverage_Ratio',
+                'Total_Provision_Movement', 'Gross_Impairment_ExcludingDS',
+                'Debt_Sale_Impact', 'Net_Impairment', 'ClosingNBV']:
+        # Add column if it exists in either dataset
+        if col in actuals_cols or col in forecast_cols:
+            final_cols.append(col)
+            # Fill missing column with 0
+            if col not in actuals.columns:
+                actuals[col] = 0.0
+            if col not in fcst.columns:
+                fcst[col] = 0.0
+
+    # Select and combine
+    actuals_out = actuals[final_cols].copy()
+    forecast_out = fcst[final_cols].copy()
+
+    combined = pd.concat([actuals_out, forecast_out], ignore_index=True)
+
+    # Sort by date, segment, cohort
+    combined = combined.sort_values(['CalendarMonth', 'Segment', 'Cohort', 'MOB']).reset_index(drop=True)
+
+    # Format date as string for Excel
+    combined['CalendarMonth'] = pd.to_datetime(combined['CalendarMonth']).dt.strftime('%Y-%m-%d')
+
+    # Round numeric columns
+    numeric_cols = combined.select_dtypes(include=[np.number]).columns
+    for col in numeric_cols:
+        combined[col] = combined[col].round(2)
+
+    logger.info(f"Generated combined output with {len(combined)} rows "
+                f"({len(actuals_out)} actuals + {len(forecast_out)} forecast)")
+
+    # Export to Excel
+    output_path = os.path.join(output_dir, 'Combined_Actuals_Forecast.xlsx')
+    with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+        combined.to_excel(writer, sheet_name='Combined', index=False)
+
+        # Add a summary sheet by month
+        monthly_summary = combined.groupby(['Source', 'CalendarMonth']).agg({
+            'OpeningGBV': 'sum',
+            'ClosingGBV': 'sum',
+            'InterestRevenue': 'sum',
+            'Coll_Principal': 'sum',
+            'Coll_Interest': 'sum',
+            'WO_DebtSold': 'sum',
+            'WO_Other': 'sum',
+            'Total_Provision_Balance': 'sum' if 'Total_Provision_Balance' in combined.columns else 'first',
+            'Net_Impairment': 'sum' if 'Net_Impairment' in combined.columns else 'first',
+            'ClosingNBV': 'sum' if 'ClosingNBV' in combined.columns else 'first',
+        }).reset_index()
+        monthly_summary.to_excel(writer, sheet_name='Monthly_Summary', index=False)
+
+        # Add a segment summary sheet
+        segment_summary = combined.groupby(['Source', 'CalendarMonth', 'Segment']).agg({
+            'OpeningGBV': 'sum',
+            'ClosingGBV': 'sum',
+            'InterestRevenue': 'sum',
+            'Coll_Principal': 'sum',
+            'Coll_Interest': 'sum',
+            'WO_DebtSold': 'sum',
+            'WO_Other': 'sum',
+        }).reset_index()
+        segment_summary.to_excel(writer, sheet_name='Segment_Summary', index=False)
+
+    logger.info(f"Created: {output_path}")
+
+    return combined
+
+
 def export_to_excel(summary: pd.DataFrame, details: pd.DataFrame,
                     impairment: pd.DataFrame, reconciliation: pd.DataFrame,
                     validation: pd.DataFrame, output_dir: str) -> None:
@@ -3019,15 +3188,19 @@ def run_backbook_forecast(fact_raw_path: str, methodology_path: str,
             return pd.DataFrame()
 
         # 7. Generate outputs
-        logger.info("\n[Step 7/9] Generating outputs...")
+        logger.info("\n[Step 7/10] Generating outputs...")
         summary = generate_summary_output(forecast)
         details = generate_details_output(forecast)
         impairment = generate_impairment_output(forecast)
         reconciliation, validation = generate_validation_output(forecast)
 
         # 8. Export to Excel
-        logger.info("\n[Step 8/9] Exporting to Excel...")
+        logger.info("\n[Step 8/10] Exporting to Excel...")
         export_to_excel(summary, details, impairment, reconciliation, validation, output_dir)
+
+        # 9. Generate combined actuals + forecast for variance analysis
+        logger.info("\n[Step 9/10] Generating combined actuals + forecast output...")
+        combined = generate_combined_actuals_forecast(fact_raw, forecast, output_dir)
 
         end_time = datetime.now()
         elapsed = (end_time - start_time).total_seconds()
