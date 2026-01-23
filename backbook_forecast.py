@@ -3116,13 +3116,287 @@ def export_to_excel(summary: pd.DataFrame, details: pd.DataFrame,
     logger.info("Excel export complete")
 
 
+def generate_comprehensive_transparency_report(
+    fact_raw: pd.DataFrame,
+    methodology: pd.DataFrame,
+    curves_base: pd.DataFrame,
+    curves_extended: pd.DataFrame,
+    rate_lookup: pd.DataFrame,
+    impairment_lookup: pd.DataFrame,
+    forecast: pd.DataFrame,
+    summary: pd.DataFrame,
+    details: pd.DataFrame,
+    impairment_output: pd.DataFrame,
+    reconciliation: pd.DataFrame,
+    validation: pd.DataFrame,
+    output_dir: str,
+    max_months: int
+) -> str:
+    """
+    Generate single comprehensive Excel report with full audit trail and all outputs.
+
+    Combines the transparency report (showing methodology/rates/curves) with
+    all forecast outputs (summary, details, impairment, validation) in one file.
+
+    Args:
+        fact_raw: Raw historical data
+        methodology: Rate methodology rules
+        curves_base: Historical rate curves
+        curves_extended: Extended rate curves
+        rate_lookup: Rate lookup table
+        impairment_lookup: Impairment lookup table
+        forecast: Full forecast output
+        summary: Summary output
+        details: Details output
+        impairment_output: Impairment output
+        reconciliation: Reconciliation output
+        validation: Validation output
+        output_dir: Output directory
+        max_months: Forecast horizon
+
+    Returns:
+        str: Path to generated report
+    """
+    logger.info("Generating comprehensive transparency report...")
+
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, 'Forecast_Transparency_Report.xlsx')
+
+    # ==========================================================================
+    # Prepare Actuals Data
+    # ==========================================================================
+    actuals_df = fact_raw.copy()
+    actuals_df['Coll_Principal_Rate'] = actuals_df.apply(
+        lambda r: safe_divide(r['Coll_Principal'], r['OpeningGBV']), axis=1)
+    actuals_df['Coll_Interest_Rate'] = actuals_df.apply(
+        lambda r: safe_divide(r['Coll_Interest'], r['OpeningGBV']), axis=1)
+    actuals_df['InterestRevenue_Rate_Annual'] = actuals_df.apply(
+        lambda r: safe_divide(r['InterestRevenue'], r['OpeningGBV']) * safe_divide(365, r['DaysInMonth'], 12), axis=1)
+    actuals_df['WO_DebtSold_Rate'] = actuals_df.apply(
+        lambda r: safe_divide(r['WO_DebtSold'], r['OpeningGBV']), axis=1)
+    actuals_df['WO_Other_Rate'] = actuals_df.apply(
+        lambda r: safe_divide(r['WO_Other'], r['OpeningGBV']), axis=1)
+    actuals_df['Coverage_Ratio'] = actuals_df.apply(
+        lambda r: safe_divide(r['Provision_Balance'], r['ClosingGBV_Reported']), axis=1)
+    actuals_df['GBV_Runoff_Rate'] = actuals_df.apply(
+        lambda r: safe_divide(r['OpeningGBV'] - r['ClosingGBV_Reported'], r['OpeningGBV']), axis=1)
+
+    actuals_cols = [
+        'CalendarMonth', 'Segment', 'Cohort', 'MOB',
+        'OpeningGBV', 'Coll_Principal', 'Coll_Interest', 'InterestRevenue',
+        'WO_DebtSold', 'WO_Other', 'ClosingGBV_Reported', 'Provision_Balance',
+        'Coll_Principal_Rate', 'Coll_Interest_Rate', 'InterestRevenue_Rate_Annual',
+        'WO_DebtSold_Rate', 'WO_Other_Rate', 'Coverage_Ratio', 'GBV_Runoff_Rate'
+    ]
+    actuals_output = actuals_df[[c for c in actuals_cols if c in actuals_df.columns]].copy()
+    actuals_output['DataType'] = 'Actual'
+
+    # ==========================================================================
+    # Prepare Historical Curves
+    # ==========================================================================
+    curves_cols = [
+        'Segment', 'Cohort', 'MOB', 'OpeningGBV', 'ClosingGBV_Reported',
+        'Coll_Principal_Rate', 'Coll_Interest_Rate', 'InterestRevenue_Rate',
+        'WO_DebtSold_Rate', 'WO_Other_Rate', 'Total_Coverage_Ratio'
+    ]
+    for col in curves_cols:
+        if col not in curves_base.columns:
+            curves_base[col] = 0.0
+    historical_curves = curves_base[[c for c in curves_cols if c in curves_base.columns]].copy()
+    historical_curves['CurveType'] = 'Historical'
+
+    # ==========================================================================
+    # Prepare Extended Curves
+    # ==========================================================================
+    extended_curves = curves_extended[[c for c in curves_cols if c in curves_extended.columns]].copy()
+    max_historical_mob = curves_base.groupby(['Segment', 'Cohort'])['MOB'].max().reset_index()
+    max_historical_mob.columns = ['Segment', 'Cohort', 'Max_Historical_MOB']
+    extended_curves = extended_curves.merge(max_historical_mob, on=['Segment', 'Cohort'], how='left')
+    extended_curves['CurveType'] = extended_curves.apply(
+        lambda r: 'Extended' if r['MOB'] > r.get('Max_Historical_MOB', 0) else 'Historical', axis=1)
+    if 'Max_Historical_MOB' in extended_curves.columns:
+        extended_curves = extended_curves.drop(columns=['Max_Historical_MOB'])
+
+    # ==========================================================================
+    # Prepare Combined View
+    # ==========================================================================
+    actuals_rows = []
+    for _, row in actuals_df.iterrows():
+        actuals_rows.append({
+            'Month': row['CalendarMonth'],
+            'Segment': row['Segment'],
+            'Cohort': row['Cohort'],
+            'MOB': row['MOB'],
+            'DataType': 'Actual',
+            'OpeningGBV': row['OpeningGBV'],
+            'Coll_Principal': row['Coll_Principal'],
+            'Coll_Interest': row['Coll_Interest'],
+            'InterestRevenue': row['InterestRevenue'],
+            'WO_DebtSold': row['WO_DebtSold'],
+            'WO_Other': row['WO_Other'],
+            'ClosingGBV': row['ClosingGBV_Reported'],
+            'Coll_Principal_Rate': row.get('Coll_Principal_Rate', 0),
+            'Coll_Interest_Rate': row.get('Coll_Interest_Rate', 0),
+            'InterestRevenue_Rate': row.get('InterestRevenue_Rate_Annual', 0),
+            'WO_DebtSold_Rate': row.get('WO_DebtSold_Rate', 0),
+            'WO_Other_Rate': row.get('WO_Other_Rate', 0),
+            'Provision_Balance': row.get('Provision_Balance', 0),
+            'Total_Coverage_Ratio': row.get('Coverage_Ratio', 0),
+        })
+
+    forecast_rows = []
+    for _, row in forecast.iterrows():
+        forecast_rows.append({
+            'Month': row['ForecastMonth'],
+            'Segment': row['Segment'],
+            'Cohort': row['Cohort'],
+            'MOB': row['MOB'],
+            'DataType': 'Forecast',
+            'OpeningGBV': row['OpeningGBV'],
+            'Coll_Principal': row['Coll_Principal'],
+            'Coll_Interest': row['Coll_Interest'],
+            'InterestRevenue': row['InterestRevenue'],
+            'WO_DebtSold': row['WO_DebtSold'],
+            'WO_Other': row['WO_Other'],
+            'ClosingGBV': row['ClosingGBV'],
+            'Coll_Principal_Rate': row.get('Coll_Principal_Rate', 0),
+            'Coll_Interest_Rate': row.get('Coll_Interest_Rate', 0),
+            'InterestRevenue_Rate': row.get('InterestRevenue_Rate', 0),
+            'WO_DebtSold_Rate': row.get('WO_DebtSold_Rate', 0),
+            'WO_Other_Rate': row.get('WO_Other_Rate', 0),
+            'Provision_Balance': row.get('Total_Provision_Balance', 0),
+            'Total_Coverage_Ratio': row.get('Total_Coverage_Ratio', 0),
+        })
+
+    combined_df = pd.DataFrame(actuals_rows + forecast_rows)
+    combined_df = combined_df.sort_values(['Segment', 'Cohort', 'Month']).reset_index(drop=True)
+
+    # ==========================================================================
+    # Prepare Seasonal Factors
+    # ==========================================================================
+    seasonal_factors_df = pd.DataFrame()
+    if Config.ENABLE_SEASONALITY:
+        seasonal_factors = calculate_seasonal_factors(fact_raw)
+        seasonal_rows = []
+        for segment, factors in seasonal_factors.items():
+            for month, factor in factors.items():
+                seasonal_rows.append({
+                    'Segment': segment,
+                    'Month_Number': month,
+                    'Month_Name': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month-1],
+                    'Seasonal_Factor': round(factor, 4),
+                    'Interpretation': f"CR typically {'higher' if factor > 1 else 'lower'} than average by {abs(factor-1)*100:.1f}%"
+                })
+        seasonal_factors_df = pd.DataFrame(seasonal_rows)
+
+    # ==========================================================================
+    # Write Excel File
+    # ==========================================================================
+    with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+        # README sheet
+        readme_data = {
+            'Sheet Name': [
+                '1_Actuals_Data',
+                '2_Historical_Rates',
+                '3_Extended_Curves',
+                '4_Methodology_Applied',
+                '5_Forecast_Output',
+                '6_Combined_View',
+                '7_Rate_Methodology_Rules',
+                '8_Seasonal_Factors',
+                '9_Summary',
+                '10_Details',
+                '11_Impairment',
+                '12_Reconciliation',
+                '13_Validation'
+            ],
+            'Description': [
+                'Raw historical data with calculated rates for each month',
+                'Aggregated rate curves by Segment x Cohort x MOB (historical only)',
+                'Rate curves extended for forecast period (Historical + Extended)',
+                'Which forecast approach was used for each Segment x Cohort x MOB x Metric',
+                'Final forecast output with all calculated amounts',
+                'Actuals + Forecast combined for easy comparison and charting',
+                'The methodology rules from Rate_Methodology.csv',
+                'Seasonal adjustment factors by Segment and Month',
+                'Monthly aggregated forecast summary',
+                'Full cohort-level forecast details',
+                'Impairment and provision analysis',
+                'GBV reconciliation checks',
+                'Validation rules and pass/fail status'
+            ],
+            'Use For': [
+                'Pivot tables showing historical trends, validating raw data',
+                'Understanding historical rate patterns by cohort age (MOB)',
+                'Seeing how rates are projected forward',
+                'Auditing which approach (CohortAvg, Manual, etc.) was used',
+                'Final forecast numbers for reporting',
+                'Building charts showing Actual vs Forecast over time',
+                'Reference for methodology rules',
+                'Understanding how monthly seasonality affects CR forecasts',
+                'High-level monthly/segment reporting',
+                'Detailed cohort-by-cohort analysis',
+                'Provision and coverage ratio analysis',
+                'Verifying GBV movements reconcile correctly',
+                'Quality assurance and data validation'
+            ]
+        }
+        readme_df = pd.DataFrame(readme_data)
+        readme_df.to_excel(writer, sheet_name='README', index=False)
+
+        # Transparency sheets
+        actuals_output.to_excel(writer, sheet_name='1_Actuals_Data', index=False)
+        historical_curves.to_excel(writer, sheet_name='2_Historical_Rates', index=False)
+        extended_curves.to_excel(writer, sheet_name='3_Extended_Curves', index=False)
+        rate_lookup.to_excel(writer, sheet_name='4_Methodology_Applied', index=False)
+        forecast.to_excel(writer, sheet_name='5_Forecast_Output', index=False)
+        combined_df.to_excel(writer, sheet_name='6_Combined_View', index=False)
+        methodology.to_excel(writer, sheet_name='7_Rate_Methodology_Rules', index=False)
+
+        if len(seasonal_factors_df) > 0:
+            seasonal_factors_df.to_excel(writer, sheet_name='8_Seasonal_Factors', index=False)
+
+        # Output sheets
+        summary.to_excel(writer, sheet_name='9_Summary', index=False)
+        details.to_excel(writer, sheet_name='10_Details', index=False)
+        impairment_output.to_excel(writer, sheet_name='11_Impairment', index=False)
+        reconciliation.to_excel(writer, sheet_name='12_Reconciliation', index=False)
+        validation.to_excel(writer, sheet_name='13_Validation', index=False)
+
+    logger.info(f"Comprehensive report saved to: {output_path}")
+
+    print("\n" + "=" * 70)
+    print(f"SUCCESS! Comprehensive report saved to: {output_path}")
+    print("=" * 70)
+    print("\nSheets included:")
+    print("  TRANSPARENCY:")
+    print("    - README: Guide to understanding each sheet")
+    print("    - 1_Actuals_Data: Raw data with calculated rates")
+    print("    - 2_Historical_Rates: Rate curves from historical data")
+    print("    - 3_Extended_Curves: Curves extended for forecast")
+    print("    - 4_Methodology_Applied: Which approach used for each metric")
+    print("    - 5_Forecast_Output: Full forecast output")
+    print("    - 6_Combined_View: Actuals + Forecast for charting")
+    print("    - 7_Rate_Methodology_Rules: Your methodology rules")
+    print("    - 8_Seasonal_Factors: Monthly adjustment factors")
+    print("  OUTPUTS:")
+    print("    - 9_Summary: Monthly aggregated summary")
+    print("    - 10_Details: Cohort-level detail")
+    print("    - 11_Impairment: Impairment analysis")
+    print("    - 12_Reconciliation: GBV reconciliation")
+    print("    - 13_Validation: Validation checks")
+
+    return output_path
+
+
 # =============================================================================
 # SECTION 13: MAIN ORCHESTRATION
 # =============================================================================
 
 def run_backbook_forecast(fact_raw_path: str, methodology_path: str,
                           debt_sale_path: Optional[str], output_dir: str,
-                          max_months: int) -> pd.DataFrame:
+                          max_months: int, transparency_report: bool = False) -> pd.DataFrame:
     """
     Orchestrate entire forecast process.
 
@@ -3132,6 +3406,7 @@ def run_backbook_forecast(fact_raw_path: str, methodology_path: str,
         debt_sale_path: Path to Debt_Sale_Schedule.csv or None
         output_dir: Output directory
         max_months: Forecast horizon
+        transparency_report: If True, generate single comprehensive output file
 
     Returns:
         pd.DataFrame: Complete forecast
@@ -3196,16 +3471,37 @@ def run_backbook_forecast(fact_raw_path: str, methodology_path: str,
         logger.info("\n[Step 7/10] Generating outputs...")
         summary = generate_summary_output(forecast)
         details = generate_details_output(forecast)
-        impairment = generate_impairment_output(forecast)
+        impairment_output = generate_impairment_output(forecast)
         reconciliation, validation = generate_validation_output(forecast)
 
         # 8. Export to Excel
         logger.info("\n[Step 8/10] Exporting to Excel...")
-        export_to_excel(summary, details, impairment, reconciliation, validation, output_dir)
 
-        # 9. Generate combined actuals + forecast for variance analysis
-        logger.info("\n[Step 9/10] Generating combined actuals + forecast output...")
-        combined = generate_combined_actuals_forecast(fact_raw, forecast, output_dir)
+        if transparency_report:
+            # Generate single comprehensive transparency report
+            generate_comprehensive_transparency_report(
+                fact_raw=fact_raw,
+                methodology=methodology,
+                curves_base=curves_base,
+                curves_extended=curves_extended,
+                rate_lookup=rate_lookup,
+                impairment_lookup=impairment_lookup,
+                forecast=forecast,
+                summary=summary,
+                details=details,
+                impairment_output=impairment_output,
+                reconciliation=reconciliation,
+                validation=validation,
+                output_dir=output_dir,
+                max_months=max_months
+            )
+        else:
+            # Generate separate output files
+            export_to_excel(summary, details, impairment_output, reconciliation, validation, output_dir)
+
+            # 9. Generate combined actuals + forecast for variance analysis
+            logger.info("\n[Step 9/10] Generating combined actuals + forecast output...")
+            combined = generate_combined_actuals_forecast(fact_raw, forecast, output_dir)
 
         end_time = datetime.now()
         elapsed = (end_time - start_time).total_seconds()
@@ -3290,6 +3586,12 @@ Examples:
         help='Enable verbose logging'
     )
 
+    parser.add_argument(
+        '--transparency-report', '-t',
+        action='store_true',
+        help='Generate single comprehensive Forecast_Transparency_Report.xlsx with all outputs'
+    )
+
     args = parser.parse_args()
 
     if args.verbose:
@@ -3300,7 +3602,8 @@ Examples:
         methodology_path=args.methodology,
         debt_sale_path=args.debt_sale,
         output_dir=args.output,
-        max_months=args.months
+        max_months=args.months,
+        transparency_report=args.transparency_report
     )
 
 
