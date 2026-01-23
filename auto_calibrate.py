@@ -205,7 +205,8 @@ def aggregate_forecast_for_comparison(
     agg_df['Collections'] = -(agg_df['Coll_Principal'] + agg_df['Coll_Interest'])
     agg_df['Revenue'] = agg_df['InterestRevenue']
     agg_df['GrossImpairment'] = agg_df['Gross_Impairment_ExcludingDS']
-    agg_df['DebtSaleGain'] = -agg_df['Debt_Sale_Impact']  # Impact is cost, gain is benefit
+    # With new sign convention, Debt_Sale_Impact already represents gain directly
+    agg_df['DebtSaleGain'] = agg_df['Debt_Sale_Impact']
     agg_df['NetImpairment'] = agg_df['Net_Impairment']
 
     # Reshape to long format

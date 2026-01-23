@@ -490,13 +490,15 @@ class TestIntegration:
         )
 
         # Calculate expected closing GBV
+        # Note: WO_DebtSold and WO_Other are stored as NEGATIVE (expense convention)
+        # so we add them (subtracting a negative = adding)
         expected_gbv = (
             forecast['OpeningGBV'] +
             forecast['InterestRevenue'] -
             abs(forecast['Coll_Principal']) -
-            abs(forecast['Coll_Interest']) -
-            forecast['WO_DebtSold'] -
-            forecast['WO_Other']
+            abs(forecast['Coll_Interest']) +
+            forecast['WO_DebtSold'] +  # Negative, so add to subtract
+            forecast['WO_Other']       # Negative, so add to subtract
         )
 
         # Variance should be minimal

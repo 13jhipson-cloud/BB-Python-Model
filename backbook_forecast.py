@@ -1217,11 +1217,13 @@ def calculate_impairment_actuals(fact_raw: pd.DataFrame) -> pd.DataFrame:
     )
 
     # Calculate debt sale coverage and proceeds rate
+    # Note: These are calculated BEFORE sign convention is applied
+    # Using abs() to ensure positive ratios regardless of sign convention
     impairment['Debt_Sale_Coverage_Ratio'] = impairment.apply(
-        lambda r: safe_divide(r['Debt_Sale_Provision_Release'], r['Debt_Sale_WriteOffs']), axis=1
+        lambda r: safe_divide(abs(r['Debt_Sale_Provision_Release']), abs(r['Debt_Sale_WriteOffs'])), axis=1
     )
     impairment['Debt_Sale_Proceeds_Rate'] = impairment.apply(
-        lambda r: safe_divide(r['Debt_Sale_Proceeds'], r['Debt_Sale_WriteOffs']), axis=1
+        lambda r: safe_divide(abs(r['Debt_Sale_Proceeds']), abs(r['Debt_Sale_WriteOffs'])), axis=1
     )
 
     # Sort and calculate provision movement
@@ -1230,16 +1232,21 @@ def calculate_impairment_actuals(fact_raw: pd.DataFrame) -> pd.DataFrame:
     impairment['Prior_Provision_Balance'] = impairment.groupby(['Segment', 'Cohort'])['Total_Provision_Balance'].shift(1).fillna(0)
     impairment['Total_Provision_Movement'] = impairment['Total_Provision_Balance'] - impairment['Prior_Provision_Balance']
 
-    # Apply credit convention: DS_Provision_Release and DS_Proceeds stored as NEGATIVE
-    # (If raw data has positive values, negate them for credit convention)
-    impairment['Debt_Sale_Provision_Release'] = -impairment['Debt_Sale_Provision_Release'].abs()
-    impairment['Debt_Sale_Proceeds'] = -impairment['Debt_Sale_Proceeds'].abs()
+    # Apply sign convention (matching reporting):
+    # - Write-offs (Debt_Sale_WriteOffs, WO_Other): NEGATIVE (expense/loss)
+    # - DS_Provision_Release: POSITIVE (income/benefit)
+    # - DS_Proceeds: POSITIVE (income/benefit)
+    impairment['Debt_Sale_WriteOffs'] = -impairment['Debt_Sale_WriteOffs'].abs()  # NEGATIVE
+    impairment['WO_Other'] = -impairment['WO_Other'].abs()  # NEGATIVE
+    impairment['Debt_Sale_Provision_Release'] = impairment['Debt_Sale_Provision_Release'].abs()  # POSITIVE
+    impairment['Debt_Sale_Proceeds'] = impairment['Debt_Sale_Proceeds'].abs()  # POSITIVE
 
     # Calculate impairment components
-    # Formula uses minus: Non_DS = Total - DS_Release (with DS_Release as negative credit)
-    impairment['Non_DS_Provision_Movement'] = impairment['Total_Provision_Movement'] - impairment['Debt_Sale_Provision_Release']
+    # Non_DS = Total + DS_Release (add back the release to isolate non-DS movement)
+    impairment['Non_DS_Provision_Movement'] = impairment['Total_Provision_Movement'] + impairment['Debt_Sale_Provision_Release']
+    # Gross impairment = Non-DS provision movement + WO_Other (WO_Other is negative)
     impairment['Gross_Impairment_ExcludingDS'] = impairment['Non_DS_Provision_Movement'] + impairment['WO_Other']
-    # Debt_Sale_Impact: WriteOffs (debit) + Provision_Release (credit/negative) + Proceeds (credit/negative)
+    # Debt_Sale_Impact: WriteOffs (negative) + Release (positive) + Proceeds (positive)
     impairment['Debt_Sale_Impact'] = (
         impairment['Debt_Sale_WriteOffs'] +
         impairment['Debt_Sale_Provision_Release'] +
@@ -2355,11 +2362,16 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         # 7. Debt sale impact = DS WriteOffs + DS provision release + DS proceeds
         # 8. Net impairment = Gross impairment (excl DS) + Debt sale impact
         #
+        # SIGN CONVENTION (matching reporting):
+        # - Write-offs (WO_DebtSold, WO_Other): NEGATIVE (expense/loss)
+        # - DS_Provision_Release: POSITIVE (income/benefit)
+        # - DS_Proceeds: POSITIVE (income/benefit)
+        #
         # Core coverage is back-solved in post-processing for months BEFORE debt sales
         # =======================================================================
 
-        # Debt sale writeoffs = WO_DebtSold forecast from rates (only in DS months)
-        debt_sale_wo = wo_debt_sold
+        # Raw amounts for GBV mechanics (positive values)
+        debt_sale_wo_raw = wo_debt_sold  # Raw positive amount used in GBV calc
         ds_coverage_ratio = Config.DS_COVERAGE_RATIO  # Fixed 78.5%
         ds_proceeds_rate = Config.DS_PROCEEDS_RATE  # Fixed 24p per £1 of GBV sold
 
@@ -2371,22 +2383,29 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         total_provision_movement = total_provision_balance - prior_provision
 
         # Step 3: Calculate DS provision release (DS Coverage Ratio × DS WriteOffs)
-        # Stored as NEGATIVE (credit convention - release reduces provision)
-        ds_provision_release = -(ds_coverage_ratio * debt_sale_wo)
+        # Stored as POSITIVE (benefit - release of provision)
+        ds_provision_release = ds_coverage_ratio * debt_sale_wo_raw
 
         # Step 4: Calculate DS proceeds (DS Proceeds Rate × DS WriteOffs)
-        # Stored as NEGATIVE (credit convention - cash inflow)
-        ds_proceeds = -(ds_proceeds_rate * debt_sale_wo)
+        # Stored as POSITIVE (benefit - cash received)
+        ds_proceeds = ds_proceeds_rate * debt_sale_wo_raw
+
+        # Apply sign convention for stored values:
+        # Write-offs are NEGATIVE (expense), release/proceeds are POSITIVE (benefit)
+        wo_debt_sold_stored = -wo_debt_sold  # NEGATIVE
+        wo_other_stored = -wo_other  # NEGATIVE
 
         # Step 5: Calculate Non-DS provision movement
-        # Formula uses minus: Non_DS = Total - DS_Release (with DS_Release as negative credit)
-        non_ds_provision_movement = total_provision_movement - ds_provision_release
+        # Non_DS = Total + DS_Release (add back the release to isolate non-DS movement)
+        non_ds_provision_movement = total_provision_movement + ds_provision_release
 
         # Step 6: Calculate Gross impairment (excluding debt sales)
-        gross_impairment_excl_ds = non_ds_provision_movement + wo_other
+        # = Non-DS provision movement + WO_Other (both can be negative)
+        gross_impairment_excl_ds = non_ds_provision_movement + wo_other_stored
 
-        # Step 7: Calculate Debt sale impact
-        debt_sale_impact = debt_sale_wo + ds_provision_release + ds_proceeds
+        # Step 7: Calculate Debt sale impact (gain/loss from debt sale)
+        # = WriteOffs (negative) + Release (positive) + Proceeds (positive)
+        debt_sale_impact = wo_debt_sold_stored + ds_provision_release + ds_proceeds
 
         # Step 8: Calculate Net impairment
         net_impairment = gross_impairment_excl_ds + debt_sale_impact
@@ -2425,8 +2444,8 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
             'Coll_Principal': round(coll_principal, 2),
             'Coll_Interest': round(coll_interest, 2),
             'InterestRevenue': round(interest_revenue, 2),
-            'WO_DebtSold': round(wo_debt_sold, 2),
-            'WO_Other': round(wo_other, 2),
+            'WO_DebtSold': round(wo_debt_sold_stored, 2),  # NEGATIVE (expense)
+            'WO_Other': round(wo_other_stored, 2),  # NEGATIVE (expense)
             'ContraSettlements_Principal': round(contra_principal, 2),
             'ContraSettlements_Interest': round(contra_interest, 2),
 
@@ -2455,7 +2474,7 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
 
             # Debt Sale - only occurs in debt sale months (Mar, Jun, Sep, Dec)
             'Is_Debt_Sale_Month': is_debt_sale_month(forecast_month),
-            'Debt_Sale_WriteOffs': round(debt_sale_wo, 2),
+            'Debt_Sale_WriteOffs': round(wo_debt_sold_stored, 2),  # NEGATIVE (expense)
             'Debt_Sale_Coverage_Ratio': round(ds_coverage_ratio, 6),
             'Debt_Sale_Proceeds_Rate': round(ds_proceeds_rate, 6),
             'Debt_Sale_Provision_Release': round(ds_provision_release, 2),

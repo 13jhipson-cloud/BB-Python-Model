@@ -188,10 +188,11 @@ def load_forecast(forecast_path: str) -> pd.DataFrame:
     # Collections in model are negative (reduce GBV), budget shows positive (cash received)
     agg_df['Collections'] = -(agg_df['Coll_Principal'] + agg_df['Coll_Interest'])
     agg_df['Revenue'] = agg_df['InterestRevenue']
-    # Gross impairment (positive = charge, negate for budget convention if needed)
+    # Gross impairment (negative = charge, as per reporting convention)
     agg_df['GrossImpairment'] = agg_df['Gross_Impairment_ExcludingDS']
     # Debt sale gain (positive = benefit)
-    agg_df['DebtSaleGain'] = -agg_df['Debt_Sale_Impact']  # Negate: impact is cost, gain is benefit
+    # With new sign convention, Debt_Sale_Impact already represents gain directly
+    agg_df['DebtSaleGain'] = agg_df['Debt_Sale_Impact']
     # Net impairment
     agg_df['NetImpairment'] = agg_df['Net_Impairment']
 
