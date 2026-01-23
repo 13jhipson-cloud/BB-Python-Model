@@ -9,19 +9,19 @@ ALL,ALL,ContraSettlements_Interest,0,999,CohortAvg,6,,Rolling average for intere
 ALL,ALL,NewLoanAmount,0,999,Zero,,,No new loans in backbook forecast
 ALL,ALL,Debt_Sale_Coverage_Ratio,0,999,Manual,0.785,,Fixed 78.5% coverage for debt sale pool
 ALL,ALL,Debt_Sale_Proceeds_Rate,0,999,Manual,0.24,,Fixed 24p per GBV sold
-NON PRIME,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: stabilized - use rolling average
-NON PRIME,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: still trending up - extrapolate
-NON PRIME,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
-NRP-S,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: stabilized - use rolling average
-NRP-S,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: still trending - extrapolate
-NRP-S,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
-NRP-M,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: stabilized - use rolling average
-NRP-M,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: still trending - extrapolate
-NRP-M,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
+NON PRIME,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x CohortAvg for mature cohorts)
+NON PRIME,ALL,Total_Coverage_Ratio,20,39,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x for mid-age cohorts)
+NON PRIME,ALL,Total_Coverage_Ratio,0,19,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x for young cohorts)
+NRP-S,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x CohortAvg)
+NRP-S,ALL,Total_Coverage_Ratio,20,39,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
+NRP-S,ALL,Total_Coverage_Ratio,0,19,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
+NRP-M,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x CohortAvg)
+NRP-M,ALL,Total_Coverage_Ratio,20,39,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
+NRP-M,ALL,Total_Coverage_Ratio,0,19,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
 NRP-M,202001,Total_Coverage_Ratio,0,999,Manual,0,,Exception: This cohort has 0 CR historically
-NRP-L,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: use rolling average
-NRP-L,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: extrapolate trend
-NRP-L,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202301,,Young cohorts: borrow from 202301 (only mature NRP-L)
+NRP-L,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x CohortAvg)
+NRP-L,ALL,Total_Coverage_Ratio,20,39,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
+NRP-L,ALL,Total_Coverage_Ratio,0,19,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
 NRP-L,202501,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 NRP-L,202502,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 NRP-L,202504,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
@@ -30,9 +30,9 @@ NRP-L,202506,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 NRP-L,202507,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 NRP-L,202508,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 NRP-L,202509,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
-PRIME,ALL,Total_Coverage_Ratio,40,999,CohortAvg,6,,Mature cohorts: use rolling average
-PRIME,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age cohorts: extrapolate trend
-PRIME,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young cohorts: borrow from mature 202101
+PRIME,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x CohortAvg)
+PRIME,ALL,Total_Coverage_Ratio,20,39,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
+PRIME,ALL,Total_Coverage_Ratio,0,19,ScaledCohortAvg,6,1.8,ITR1: IFRS 9 forward-looking adjustment (1.8x)
 PRIME,202405,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 PRIME,202407,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 PRIME,202409,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
@@ -40,4 +40,4 @@ PRIME,202504,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 PRIME,202507,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 PRIME,202508,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
 PRIME,202509,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
-ALL,ALL,Total_Coverage_Ratio,0,999,CohortAvg,6,,Fallback: rolling average for any undefined combination
+ALL,ALL,Total_Coverage_Ratio,0,999,ScaledCohortAvg,6,1.8,ITR1: Fallback with IFRS 9 adjustment (1.8x)
