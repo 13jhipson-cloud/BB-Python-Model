@@ -1244,8 +1244,10 @@ def calculate_impairment_actuals(fact_raw: pd.DataFrame) -> pd.DataFrame:
     # Calculate impairment components
     # Non_DS = Total + DS_Release (add back the release to isolate non-DS movement)
     impairment['Non_DS_Provision_Movement'] = impairment['Total_Provision_Movement'] + impairment['Debt_Sale_Provision_Release']
-    # Gross impairment = Non-DS provision movement + WO_Other (WO_Other is negative)
-    impairment['Gross_Impairment_ExcludingDS'] = impairment['Non_DS_Provision_Movement'] + impairment['WO_Other']
+    # Gross impairment = NEGATED provision movement + WO_Other
+    # P&L convention: provision increase = charge (negative), provision decrease = release (positive)
+    # WO_Other is already negative (expense)
+    impairment['Gross_Impairment_ExcludingDS'] = -impairment['Non_DS_Provision_Movement'] + impairment['WO_Other']
     # Debt_Sale_Impact: WriteOffs (negative) + Release (positive) + Proceeds (positive)
     impairment['Debt_Sale_Impact'] = (
         impairment['Debt_Sale_WriteOffs'] +
@@ -2362,10 +2364,13 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         # 7. Debt sale impact = DS WriteOffs + DS provision release + DS proceeds
         # 8. Net impairment = Gross impairment (excl DS) + Debt sale impact
         #
-        # SIGN CONVENTION (matching reporting):
+        # SIGN CONVENTION (matching P&L reporting):
         # - Write-offs (WO_DebtSold, WO_Other): NEGATIVE (expense/loss)
+        # - Provision increase: NEGATIVE (charge to P&L)
+        # - Provision decrease: POSITIVE (release/benefit to P&L)
         # - DS_Provision_Release: POSITIVE (income/benefit)
         # - DS_Proceeds: POSITIVE (income/benefit)
+        # - Gross Impairment: NEGATIVE = charge, POSITIVE = benefit
         #
         # Core coverage is back-solved in post-processing for months BEFORE debt sales
         # =======================================================================
@@ -2400,8 +2405,10 @@ def run_one_step(seed_table: pd.DataFrame, rate_lookup: pd.DataFrame,
         non_ds_provision_movement = total_provision_movement + ds_provision_release
 
         # Step 6: Calculate Gross impairment (excluding debt sales)
-        # = Non-DS provision movement + WO_Other (both can be negative)
-        gross_impairment_excl_ds = non_ds_provision_movement + wo_other_stored
+        # = NEGATED provision movement + WO_Other
+        # P&L convention: provision increase = charge (negative), provision decrease = release (positive)
+        # WO_Other is already negative (expense)
+        gross_impairment_excl_ds = -non_ds_provision_movement + wo_other_stored
 
         # Step 7: Calculate Debt sale impact (gain/loss from debt sale)
         # = WriteOffs (negative) + Release (positive) + Proceeds (positive)
