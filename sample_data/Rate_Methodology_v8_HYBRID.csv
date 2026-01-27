@@ -1,0 +1,53 @@
+Segment,Cohort,Metric,MOB_Start,MOB_End,Approach,Param1,Param2,Explanation
+NON PRIME,ALL,Coll_Principal,0,999,ScaledCohortAvg,6,0.93,Reduce collections ~7% toward budget (budget expects slower collections)
+NON PRIME,ALL,Coll_Interest,0,999,ScaledCohortAvg,6,0.93,Reduce collections ~7% toward budget
+NRP-S,ALL,Coll_Principal,0,999,ScaledCohortAvg,6,0.92,Reduce collections ~8% toward budget
+NRP-S,ALL,Coll_Interest,0,999,ScaledCohortAvg,6,0.92,Reduce collections ~8% toward budget
+NRP-M,ALL,Coll_Principal,0,999,ScaledCohortAvg,6,0.90,Reduce collections ~10% toward budget
+NRP-M,ALL,Coll_Interest,0,999,ScaledCohortAvg,6,0.90,Reduce collections ~10% toward budget
+NRP-L,ALL,Coll_Principal,0,999,ScaledCohortAvg,6,0.90,Reduce collections ~10% toward budget (same as NRP-M)
+NRP-L,ALL,Coll_Interest,0,999,ScaledCohortAvg,6,0.90,Reduce collections ~10% toward budget
+PRIME,ALL,Coll_Principal,0,999,ScaledCohortAvg,6,0.75,PRIME collections most over-forecast vs budget - reduce ~25%
+PRIME,ALL,Coll_Interest,0,999,ScaledCohortAvg,6,0.75,PRIME collections most over-forecast vs budget
+ALL,ALL,InterestRevenue,0,999,CohortAvg,6,,Revenue gap was small (-8.5%) - keep pure historical average
+ALL,ALL,WO_DebtSold,0,999,CohortAvg,6,,Historical writeoff patterns - no aggressive scaling
+ALL,ALL,WO_Other,0,999,CohortAvg,6,,Historical writeoff patterns - no aggressive scaling
+ALL,ALL,ContraSettlements_Principal,0,999,CohortAvg,6,,Rolling average for settlements
+ALL,ALL,ContraSettlements_Interest,0,999,CohortAvg,6,,Rolling average for interest settlements
+ALL,ALL,NewLoanAmount,0,999,Zero,,,No new loans in backbook forecast
+ALL,ALL,Debt_Sale_Coverage_Ratio,0,999,Manual,0.85,,Policy assumption - 85% provision coverage for debt sale pool
+ALL,ALL,Debt_Sale_Proceeds_Rate,0,999,Manual,0.9,,Policy assumption - 90p recovery per GBV sold
+NON PRIME,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.20,Mature: stable base + 20% IFRS9 forward-looking uplift
+NON PRIME,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age: preserve upward trend extrapolation (drives impairment naturally)
+NON PRIME,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young: borrow from mature 202101 cohort
+NRP-S,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.20,Mature: stable base + 20% IFRS9 forward-looking uplift
+NRP-S,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age: preserve upward trend extrapolation
+NRP-S,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young: borrow from mature 202101 cohort
+NRP-M,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.20,Mature: stable base + 20% IFRS9 forward-looking uplift
+NRP-M,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age: preserve upward trend extrapolation
+NRP-M,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young: borrow from mature 202101 cohort
+NRP-M,202001,Total_Coverage_Ratio,0,999,Manual,0,,Exception: This cohort has 0 CR historically
+NRP-L,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.20,Mature: stable base + 20% IFRS9 forward-looking uplift
+NRP-L,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age: preserve upward trend extrapolation
+NRP-L,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202301,,Young: borrow from 202301 (only mature NRP-L)
+NRP-L,202501,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202502,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202504,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202505,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202506,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202507,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202508,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+NRP-L,202509,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,ALL,Total_Coverage_Ratio,40,999,ScaledCohortAvg,6,1.20,Mature: stable base + 20% IFRS9 forward-looking uplift
+PRIME,ALL,Total_Coverage_Ratio,20,39,CohortTrend,6,,Mid-age: preserve upward trend extrapolation
+PRIME,ALL,Total_Coverage_Ratio,0,19,DonorCohort,202101,,Young: borrow from mature 202101 cohort
+PRIME,202405,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202407,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202409,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202504,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202507,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202508,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+PRIME,202509,Total_Coverage_Ratio,0,999,Manual,0,,Exception: CR consistently 0
+ALL,ALL,Coll_Principal,0,999,CohortAvg,6,,Fallback: Rolling 6-period average for collections
+ALL,ALL,Coll_Interest,0,999,CohortAvg,6,,Fallback: Rolling 6-period average for interest collections
+ALL,ALL,Total_Coverage_Ratio,0,999,CohortAvg,6,,Fallback: rolling average for any undefined combination
