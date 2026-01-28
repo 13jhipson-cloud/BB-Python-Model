@@ -61,7 +61,7 @@ class Config:
         'ContraSettlements_Principal': (-0.15, 0.01),  # Usually negative
         'ContraSettlements_Interest': (-0.01, 0.01),   # Usually negative
         'NewLoanAmount': (0.0, 1.0),      # Always positive
-        'Total_Coverage_Ratio': (0.0, 2.50),  # Allow up to 250% coverage
+        'Total_Coverage_Ratio': (0.0, 1.00),  # Cap at 100% - provisions should not exceed GBV
         'Debt_Sale_Coverage_Ratio': (0.50, 1.00),
         'Debt_Sale_Proceeds_Rate': (0.10, 1.00),
     }

@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """
-Compare v8 Hybrid methodology forecast output against budget targets.
+Compare forecast output against budget targets.
 Reads from:
-  - output_v8_hybrid/Forecast_Transparency_Report.xlsx (9_Summary and 11_Impairment sheets)
+  - Forecast Transparency Report Excel (9_Summary and 11_Impairment sheets)
   - Budget consol file.xlsx (P&L analysis - BB sheet)
+
+Usage:
+  python compare_v8_vs_budget.py [forecast_file]
+  python compare_v8_vs_budget.py output_v9c/Forecast_Transparency_Report.xlsx
 """
 
+import sys
 import openpyxl
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -13,7 +18,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 BUDGET_FILE = "Budget consol file.xlsx"
-FORECAST_FILE = "output_v8_hybrid/Forecast_Transparency_Report.xlsx"
+DEFAULT_FORECAST = "output_v9_final/Forecast_Transparency_Report.xlsx"
+FORECAST_FILE = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_FORECAST
 
 BUDGET_ROWS = {
     "Collections":      {"Non Prime": 12, "NPS": 13, "NPM": 14, "Prime": 15, "Total": 16},
@@ -115,7 +121,8 @@ def aggregate_forecast(summary_rows, imp_rows):
 
         for bseg, fsegs in FORECAST_SEG_MAP.items():
             if seg in fsegs:
-                forecast["Collections"][bseg][month_key] += float(row.get("Coll_Principal", 0) or 0) + float(row.get("Coll_Interest", 0) or 0)
+                # Collections stored as negative in model (outflows), positive in budget
+                forecast["Collections"][bseg][month_key] += abs(float(row.get("Coll_Principal", 0) or 0)) + abs(float(row.get("Coll_Interest", 0) or 0))
                 forecast["ClosingGBV"][bseg][month_key] += float(row.get("ClosingGBV", 0) or 0)
                 forecast["Revenue"][bseg][month_key] += float(row.get("InterestRevenue", 0) or 0)
                 break
@@ -154,7 +161,7 @@ def aggregate_forecast(summary_rows, imp_rows):
 
 def main():
     print("=" * 100)
-    print("  V8 HYBRID METHODOLOGY: FORECAST vs BUDGET COMPARISON")
+    print(f"  FORECAST vs BUDGET COMPARISON ({FORECAST_FILE})")
     print("=" * 100)
 
     budget = load_budget_data()
@@ -219,7 +226,7 @@ def main():
 
     # Summary table
     print(f"\n{'='*100}")
-    print(f"  SUMMARY: Total Portfolio Variance (v8 Hybrid vs Budget)")
+    print(f"  SUMMARY: Total Portfolio Variance (Forecast vs Budget)")
     print(f"{'='*100}")
     print(f"  {'Metric':<25} {'Budget':>14} {'Forecast':>14} {'Variance':>12} {'Var %':>8}")
     print(f"  {'-'*75}")
@@ -246,14 +253,14 @@ def main():
 
     # Compare with previous iterations
     print(f"\n{'='*100}")
-    print(f"  COMPARISON WITH PREVIOUS CALIBRATION ITERATIONS")
+    print(f"  CALIBRATION HISTORY (all on full Fact_Raw.xlsx dataset)")
     print(f"{'='*100}")
-    print(f"  {'Iteration':<30} {'Collections':>12} {'GBV':>12} {'NBV':>12} {'GrossImp':>12}")
-    print(f"  {'-'*80}")
-    print(f"  {'Iter 0 (Baseline v6)':30} {'+10.1%':>12} {'-9.0%':>12} {'-3.4%':>12} {'-57.8%':>12}")
-    print(f"  {'Iter 1 (ScaledCA 1.8x)':30} {'N/A':>12} {'N/A':>12} {'-29.0%':>12} {'+166.0%':>12}")
-    print(f"  {'Iter 2 (ScaledCA 1.2x)':30} {'N/A':>12} {'N/A':>12} {'-3.9%':>12} {'-79.7%':>12}")
-    print(f"  {'V8 HYBRID (this run)':30} {'See above':>12} {'See above':>12} {'See above':>12} {'See above':>12}")
+    print(f"  {'Iteration':<35} {'Collections':>12} {'GBV':>12} {'NBV':>12} {'GrossImp':>12}")
+    print(f"  {'-'*85}")
+    print(f"  {'v8 Hybrid (full data baseline)':35} {'+6.7%':>12} {'-16.5%':>12} {'-11.6%':>12} {'+61.5%':>12}")
+    print(f"  {'v9 (initial calibration)':35} {'-0.0%':>12} {'-9.9%':>12} {'-17.2%':>12} {'-4.5%':>12}")
+    print(f"  {'v9c (segment-tuned, BEST)':35} {'-0.0%':>12} {'-9.9%':>12} {'-16.2%':>12} {'+0.2%':>12}")
+    print(f"  {'Current run':35} {'See above':>12} {'See above':>12} {'See above':>12} {'See above':>12}")
     print()
 
 

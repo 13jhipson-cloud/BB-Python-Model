@@ -4,6 +4,15 @@ output_fixed/
 output_fixed_full/
 output_fixed_v2/
 output_fixed_v3/
+output_v6_baseline_full/
+output_v8_hybrid/
+output_v8_hybrid_full/
+output_v8_full/
+output_v9_calibrated/
+output_v9b_calibrated/
+output_v9c/
+output_v9d/
+output_v9_final/
 test_output/
 Forecast_Transparency_Report*.xlsx
 Fact_Raw_Transformed.csv
